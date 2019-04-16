@@ -1,0 +1,7 @@
+.idea/
+main
+vendor/*/
+.secret
+main
+.coverage/
+certs/
