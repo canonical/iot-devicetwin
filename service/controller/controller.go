@@ -124,8 +124,7 @@ func (srv *Service) HealthHandler(client MQTT.Client, msg MQTT.Message) {
 	}
 
 	// Update the device record
-	err := srv.DeviceTwin.HealthHandler(h)
-	if err == nil {
+	if err := srv.DeviceTwin.HealthHandler(h); err != nil {
 		return
 	}
 

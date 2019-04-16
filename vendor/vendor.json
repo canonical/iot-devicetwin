@@ -3,6 +3,24 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "+ib228fG9axbhqkI1f8Lt61tp0w=",
+			"path": "github.com/CanonicalLtd/iot-identity/domain",
+			"revision": "04f7df89ec0dd0adf805c6b4d61f6e4736057c50",
+			"revisionTime": "2019-04-12T17:00:22Z"
+		},
+		{
+			"checksumSHA1": "f/w+3kuasJir1CQCf8WBAfNDur0=",
+			"path": "github.com/CanonicalLtd/iot-identity/service/cert",
+			"revision": "04f7df89ec0dd0adf805c6b4d61f6e4736057c50",
+			"revisionTime": "2019-04-12T17:00:22Z"
+		},
+		{
+			"checksumSHA1": "CSPbwbyzqA6sfORicn4HFtIhF/c=",
+			"path": "github.com/davecgh/go-spew/spew",
+			"revision": "d8f796af33cc11cb798c1aaeb27a4ebc5099927d",
+			"revisionTime": "2018-08-30T19:11:22Z"
+		},
+		{
 			"checksumSHA1": "4Lqs3rh779TwXvN3Y1LqUPJoPwA=",
 			"path": "github.com/eclipse/paho.mqtt.golang",
 			"revision": "54767d4b481181b7ad634c825dbabbdaca11eaf5",
@@ -33,10 +51,22 @@
 			"revisionTime": "2019-03-26T04:20:56Z"
 		},
 		{
+			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
+			"path": "github.com/pmezard/go-difflib/difflib",
+			"revision": "5d4384ee4fb2527b0a1256a821ebfc92f91efefc",
+			"revisionTime": "2018-12-26T10:54:42Z"
+		},
+		{
 			"checksumSHA1": "ll+Va3U8P37U3saPXZW7f5B3RmY=",
 			"path": "github.com/segmentio/ksuid",
 			"revision": "7d859c5329d157d00c7d5a4ead1ce7a9d45eeda8",
 			"revisionTime": "2019-03-12T20:28:40Z"
+		},
+		{
+			"checksumSHA1": "IIsn0Wdi5rHU8xca+FzDd+YeYlc=",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "34c6fa2dc70986bccbbffcc6130f6920a924b075",
+			"revisionTime": "2019-03-04T09:57:49Z"
 		},
 		{
 			"checksumSHA1": "f3Y7JIZH61oMmp8nphqe8Mg+XoU=",

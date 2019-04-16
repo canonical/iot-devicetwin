@@ -82,8 +82,6 @@ func (srv *Service) ActionResponse(action string, payload []byte) error {
 	default:
 		return fmt.Errorf("error unhandled action `%s`", action)
 	}
-
-	return nil
 }
 
 func (srv *Service) actionDevice(payload []byte) error {
@@ -95,13 +93,13 @@ func (srv *Service) actionDevice(payload []byte) error {
 	}
 
 	// Get the device details and create/update the device
-	device, err := srv.DB.DeviceGet(d.Result.DeviceID)
+	_, err := srv.DB.DeviceGet(d.Result.DeviceID)
 	if err == nil {
-		return nil
+		return fmt.Errorf("error in device action: device already exists")
 	}
 
 	// Device does not exit, so create
-	device = datastore.Device{
+	device := datastore.Device{
 		OrganisationID: d.Result.OrganizationID,
 		DeviceID:       d.Result.DeviceID,
 		Brand:          d.Result.Brand,

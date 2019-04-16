@@ -21,6 +21,7 @@ package config
 
 import (
 	"os"
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -32,6 +33,13 @@ func TestParseArgs(t *testing.T) {
 	}{
 		{"default-settings-create"},
 	}
+
+	// Create the test files
+	_ = os.Mkdir(DefaultConfigPath, 0777)
+	_, _ = os.Create(path.Join(DefaultConfigPath, rootCA))
+	_, _ = os.Create(path.Join(DefaultConfigPath, clientCert))
+	_, _ = os.Create(path.Join(DefaultConfigPath, clientKey))
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
@@ -45,8 +53,10 @@ func TestParseArgs(t *testing.T) {
 				assert.True(t, len(got.KeySecret) > 0, "secret not generated")
 
 				_ = os.Remove(keyFilename)
+
+				// Clean up
+				_ = os.RemoveAll(DefaultConfigPath)
 			}
 		})
 	}
-
 }
