@@ -1,3 +1,6 @@
+[![Build Status][travis-image]][travis-url]
+[![Go Report Card][goreportcard-image]][goreportcard-url]
+[![codecov][codecov-image]][codecov-url]
 # IoT Device Twin Service
 
 The Device Twin service holds information about the state of the connected devices. Once a 
@@ -44,3 +47,10 @@ The device twin record holds:
  
  ## Contributing
  Before contributing you should sign [Canonical's contributor agreement](https://www.ubuntu.com/legal/contributors), it’s the easiest way for you to give us permission to use your contributions.
+
+[travis-image]: https://travis-ci.org/CanonicalLtd/iot-devicetwin.svg?branch=master
+[travis-url]: https://travis-ci.org/CanonicalLtd/iot-devicetwin
+[goreportcard-image]: https://goreportcard.com/badge/github.com/CanonicalLtd/iot-devicetwin
+[goreportcard-url]: https://goreportcard.com/report/github.com/CanonicalLtd/iot-devicetwin
+[codecov-url]: https://codecov.io/gh/CanonicalLtd/iot-devicetwin
+[codecov-image]: https://codecov.io/gh/CanonicalLtd/iot-devicetwin/branch/master/graph/badge.svg
