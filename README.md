@@ -17,8 +17,11 @@ The device twin record holds:
  The service provides a cache so the devices can be monitored by the IoT Management 
  Service, and relays actions to the device e.g. to install a new application.
  
+ ## Design
+ ![IoT Management Solution Overview](docs/IoTManagement.svg)
+ 
  ## Build
- The project uses vendorized dependencies using govendor. Development has been done on minimum Go version 1.12.1.
+ The project uses vendorized dependencies using `govendor`. Development has been done on minimum Go version 1.12.1.
  ```bash
  $ go get github.com/CanonicalLtd/iot-devicetwin
  $ cd iot-devicetwin
