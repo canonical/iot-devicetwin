@@ -17,40 +17,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package web
+package devicetwin
 
 import (
-	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/service/controller"
-	"net/http"
-
 	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/gorilla/mux"
+	"github.com/CanonicalLtd/iot-devicetwin/datastore/memory"
+	"testing"
 )
 
-// Web is the interface for the web API
-type Web interface {
-	Run() error
-	Router() *mux.Router
-	SnapList(w http.ResponseWriter, r *http.Request)
-}
-
-// Service is the implementation of the web API
-type Service struct {
-	Settings   *config.Settings
-	Controller controller.Controller
-}
-
-// NewService returns a new web controller
-func NewService(settings *config.Settings, ctrl controller.Controller) *Service {
-	return &Service{
-		Settings:   settings,
-		Controller: ctrl,
+func TestService_DeviceSnaps(t *testing.T) {
+	type args struct {
+		clientID string
 	}
-}
+	tests := []struct {
+		name    string
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{"valid", args{"a111"}, 1, false},
+		{"invalid", args{"invalid"}, 0, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := NewService(config.TestConfig(), memory.NewStore())
+			got, err := srv.DeviceSnaps(tt.args.clientID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Service.DeviceSnaps() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr {
+				return
+			}
 
-// Run starts the web service
-func (wb Service) Run() error {
-	fmt.Printf("Starting service on port :%s\n", wb.Settings.Port)
-	return http.ListenAndServe(":"+wb.Settings.Port, wb.Router())
+			if len(got) != tt.want {
+				t.Errorf("Service.DeviceSnaps() = %v, want %v", len(got), tt.want)
+			}
+		})
+	}
 }

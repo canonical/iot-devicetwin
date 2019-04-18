@@ -19,11 +19,17 @@
 
 package datastore
 
-import "time"
+import (
+	"time"
+)
 
 // DataStore is the interfaces for the data repository
 type DataStore interface {
 	DeviceGet(id string) (Device, error)
 	DevicePing(id string, refresh time.Time) error
 	DeviceCreate(Device) (int64, error)
+
+	DeviceSnapList(id int64) ([]DeviceSnap, error)
+	DeviceSnapDelete(id int64) error
+	DeviceSnapUpsert(ds DeviceSnap) error
 }

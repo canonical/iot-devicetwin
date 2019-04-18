@@ -34,8 +34,12 @@ import (
 
 // Controller interface for the service
 type Controller interface {
+	// MQTT handlers
 	HealthHandler(client MQTT.Client, msg MQTT.Message)
 	ActionHandler(client MQTT.Client, msg MQTT.Message)
+
+	// Passthrough to the device twin service
+	DeviceSnaps(clientID string) ([]domain.DeviceSnap, error)
 }
 
 // Service implementation of the devicetwin service use cases
@@ -55,7 +59,9 @@ func NewService(settings *config.Settings, m mqtt.Connect, twin devicetwin.Devic
 
 	// Setup the MQTT client and handle pub/sub from here... as the MQTT and DeviceTwin services are mutually dependent
 	// This service plugs them together
-	srv.SubscribeToActions()
+	if err := srv.SubscribeToActions(); err != nil {
+		log.Printf("Error subscribing to actions: %v", err)
+	}
 	return srv
 }
 
@@ -100,7 +106,7 @@ func (srv *Service) ActionHandler(client MQTT.Client, msg MQTT.Message) {
 	}
 
 	// Handle the action
-	if err := srv.DeviceTwin.ActionResponse(a.Action, msg.Payload()); err != nil {
+	if err := srv.DeviceTwin.ActionResponse(clientID, a.Action, msg.Payload()); err != nil {
 		log.Printf("Error with action `%s`: %v", a.Action, err)
 	}
 }

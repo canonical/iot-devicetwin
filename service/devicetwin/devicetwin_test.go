@@ -55,25 +55,31 @@ func TestService_ActionResponse(t *testing.T) {
 	p1 := []byte("")
 	p2 := []byte(`{"id":"a1", "action":"device", "success":true, "message":"", "result": {"orgId":"abc", "deviceId":"d444", "brand":"example", "model":"drone-1000", "serial":"d444"}}`)
 	p3 := []byte(`{"id":"a1", "action":"device", "success":true, "message":"", "result": {"orgId":"abc", "deviceId":"a111", "brand":"example", "model":"drone-1000", "serial":"d444"}}`)
+	p4 := []byte(`{"id":"a1", "action":"list", "success":true, "message":"", "result": [{"name":"abc", "status":"active", "version":"1.0"}, {"name":"alpaca", "status":"active", "version":"2.3"}]}`)
 
 	type args struct {
-		action  string
-		payload []byte
+		clientID string
+		action   string
+		payload  []byte
 	}
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		{"empty-payload", args{"device", p1}, true},
-		{"valid", args{"device", p2}, false},
-		{"invalid-action", args{"invalid", p2}, true},
-		{"device-exists", args{"device", p3}, true},
+		{"empty-payload", args{"", "device", p1}, true},
+		{"valid-device", args{"d444", "device", p2}, false},
+		{"invalid-action", args{"d444", "invalid", p2}, true},
+		{"device-exists", args{"a111", "device", p3}, true},
+
+		{"valid-list", args{"a111", "list", p4}, false},
+		{"list-empty-payload", args{"", "list", p1}, true},
+		{"list-no-device", args{"invalid", "list", p4}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			srv := NewService(config.TestConfig(), memory.NewStore())
-			if err := srv.ActionResponse(tt.args.action, tt.args.payload); (err != nil) != tt.wantErr {
+			if err := srv.ActionResponse(tt.args.clientID, tt.args.action, tt.args.payload); (err != nil) != tt.wantErr {
 				t.Errorf("Service.ActionResponse() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

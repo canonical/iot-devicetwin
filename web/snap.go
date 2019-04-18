@@ -20,37 +20,20 @@
 package web
 
 import (
-	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/service/controller"
-	"net/http"
-
-	"github.com/CanonicalLtd/iot-devicetwin/config"
 	"github.com/gorilla/mux"
+	"log"
+	"net/http"
 )
 
-// Web is the interface for the web API
-type Web interface {
-	Run() error
-	Router() *mux.Router
-	SnapList(w http.ResponseWriter, r *http.Request)
-}
+func (wb Service) SnapList(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
 
-// Service is the implementation of the web API
-type Service struct {
-	Settings   *config.Settings
-	Controller controller.Controller
-}
-
-// NewService returns a new web controller
-func NewService(settings *config.Settings, ctrl controller.Controller) *Service {
-	return &Service{
-		Settings:   settings,
-		Controller: ctrl,
+	installed, err := wb.Controller.DeviceSnaps(vars["id"])
+	if err != nil {
+		log.Println("Error fetching snaps for a device:", err)
+		formatStandardResponse("SnapList", "Error fetching snaps for the device", w)
+		return
 	}
-}
 
-// Run starts the web service
-func (wb Service) Run() error {
-	fmt.Printf("Starting service on port :%s\n", wb.Settings.Port)
-	return http.ListenAndServe(":"+wb.Settings.Port, wb.Router())
+	formatSnapsResponse(installed, w)
 }

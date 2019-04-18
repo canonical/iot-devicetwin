@@ -19,6 +19,8 @@
 
 package domain
 
+import "time"
+
 // SubscribeAction is the message format for the action topic
 type SubscribeAction struct {
 	ID     string `json:"id"`
@@ -60,4 +62,28 @@ type PublishDevice struct {
 		StoreID        string `json:"store"`
 		DeviceKey      string `json:"deviceKey"`
 	} `json:"result"`
+}
+
+// PublishSnaps is the published message showing the result of a list snaps action
+type PublishSnaps struct {
+	ID      string       `json:"id"`
+	Action  string       `json:"action"`
+	Success bool         `json:"success"`
+	Message string       `json:"message"`
+	Result  []DeviceSnap `json:"result"`
+}
+
+// DeviceSnap holds the details of snap on a device
+type DeviceSnap struct {
+	DeviceID      string    `json:"deviceId"`
+	Name          string    `json:"name"`
+	InstalledSize int64     `json:"installedSize"`
+	InstalledDate time.Time `json:"installedDate"`
+	Status        string    `json:"status"`
+	Channel       string    `json:"channel"`
+	Confinement   string    `json:"confinement"`
+	Version       string    `json:"version"`
+	Revision      int       `json:"revision"`
+	Devmode       bool      `json:"devmode"`
+	Config        string    `json:"config"`
 }

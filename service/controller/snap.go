@@ -17,39 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package datastore
+package controller
 
-import "time"
+import "github.com/CanonicalLtd/iot-devicetwin/domain"
 
-// Device the repository definition of a device
-type Device struct {
-	ID             int64
-	Created        time.Time
-	LastRefresh    time.Time
-	OrganisationID string
-	DeviceID       string
-	Brand          string
-	Model          string
-	SerialNumber   string
-	DeviceKey      string
-	StoreID        string
-	Active         bool
-}
-
-// DeviceSnap holds the details of snap on a device
-type DeviceSnap struct {
-	ID            int
-	Created       time.Time
-	Modified      time.Time
-	DeviceID      int64
-	Name          string
-	InstalledSize int64
-	InstalledDate time.Time
-	Status        string
-	Channel       string
-	Confinement   string
-	Version       string
-	Revision      int
-	Devmode       bool
-	Config        string
+// DeviceSnaps gets the device's snaps from the database cache
+func (srv *Service) DeviceSnaps(clientID string) ([]domain.DeviceSnap, error) {
+	return srv.DeviceTwin.DeviceSnaps(clientID)
 }

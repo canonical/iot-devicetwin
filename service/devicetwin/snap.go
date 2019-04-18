@@ -20,35 +20,37 @@
 package devicetwin
 
 import (
-	"fmt"
 	"github.com/CanonicalLtd/iot-devicetwin/domain"
 )
 
-// MockDeviceTwin mocks a device twin service
-type MockDeviceTwin struct{}
-
-// HealthHandler mocks the health handler
-func (twin *MockDeviceTwin) HealthHandler(payload domain.Health) error {
-	if payload.DeviceID == "invalid" {
-		return fmt.Errorf("MOCK error in health handler")
+// DeviceSnaps fetches the snaps for a device
+func (srv *Service) DeviceSnaps(clientID string) ([]domain.DeviceSnap, error) {
+	device, err := srv.DB.DeviceGet(clientID)
+	if err != nil {
+		return nil, err
 	}
-	return nil
-}
 
-// ActionResponse mocks the action handler
-func (twin *MockDeviceTwin) ActionResponse(clientID, action string, payload []byte) error {
-	if action == "invalid" {
-		return fmt.Errorf("MOCK error in action")
+	snaps, err := srv.DB.DeviceSnapList(device.ID)
+	if err != nil {
+		return nil, err
 	}
-	return nil
-}
 
-// DeviceSnaps mocks the snap list
-func (twin *MockDeviceTwin) DeviceSnaps(clientID string) ([]domain.DeviceSnap, error) {
-	if clientID == "invalid" {
-		return nil, fmt.Errorf("MOCK snaps list")
+	installed := []domain.DeviceSnap{}
+	for _, s := range snaps {
+		snap := domain.DeviceSnap{
+			DeviceID:      device.DeviceID,
+			Name:          s.Name,
+			InstalledSize: s.InstalledSize,
+			InstalledDate: s.InstalledDate,
+			Status:        s.Status,
+			Channel:       s.Channel,
+			Confinement:   s.Confinement,
+			Version:       s.Version,
+			Revision:      s.Revision,
+			Devmode:       s.Devmode,
+			Config:        s.Config,
+		}
+		installed = append(installed, snap)
 	}
-	return []domain.DeviceSnap{
-		{Name: "example-snap", InstalledSize: 2000, Status: "active"},
-	}, nil
+	return installed, nil
 }

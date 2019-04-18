@@ -29,6 +29,7 @@ import (
 // Store implements an in-memory store for testing
 type Store struct {
 	Devices []datastore.Device
+	Snaps   []datastore.DeviceSnap
 	lock    sync.RWMutex
 }
 
@@ -40,6 +41,9 @@ func NewStore() *Store {
 
 	return &Store{
 		Devices: []datastore.Device{d1, d2, d3},
+		Snaps: []datastore.DeviceSnap{
+			{DeviceID: 1, Name: "example-snap", InstalledSize: 2000, Status: "active"},
+		},
 	}
 }
 
@@ -91,4 +95,57 @@ func (mem *Store) DeviceCreate(device datastore.Device) (int64, error) {
 	device.ID = int64(len(mem.Devices) + 1)
 	mem.Devices = append(mem.Devices, device)
 	return device.ID, nil
+}
+
+// DeviceSnapUpsert creates or updates a snap for a device
+func (mem *Store) DeviceSnapUpsert(ds datastore.DeviceSnap) error {
+	mem.lock.Lock()
+	defer mem.lock.Unlock()
+	// Find the snap
+	found := -1
+	for i, s := range mem.Snaps {
+		if s.Name == ds.Name {
+			found = i
+		}
+	}
+
+	if found < 0 {
+		// Not found, so create it
+		mem.Snaps = append(mem.Snaps, ds)
+		return nil
+	}
+
+	// Update the existing record
+	mem.Snaps[found] = ds
+	return nil
+}
+
+// DeviceSnapList lists the snaps for a device
+func (mem *Store) DeviceSnapList(id int64) ([]datastore.DeviceSnap, error) {
+	mem.lock.RLock()
+	defer mem.lock.RUnlock()
+	snaps := []datastore.DeviceSnap{}
+
+	for _, s := range mem.Snaps {
+		if s.DeviceID == id {
+			snaps = append(snaps, s)
+		}
+	}
+	return snaps, nil
+}
+
+// DeviceSnapDelete deletes the snap records for a device
+func (mem *Store) DeviceSnapDelete(id int64) error {
+	mem.lock.Lock()
+	defer mem.lock.Unlock()
+	snaps := []datastore.DeviceSnap{}
+
+	for _, s := range mem.Snaps {
+		if s.DeviceID != id {
+			snaps = append(snaps, s)
+		}
+	}
+	mem.Snaps = snaps
+
+	return nil
 }

@@ -31,7 +31,9 @@ import (
 // DeviceTwin interface for the service
 type DeviceTwin interface {
 	HealthHandler(payload domain.Health) error
-	ActionResponse(action string, payload []byte) error // process a response from a device
+	ActionResponse(clientID, action string, payload []byte) error // process a response from a device
+
+	DeviceSnaps(clientID string) ([]domain.DeviceSnap, error)
 }
 
 // Service implementation of the identity use cases
@@ -62,12 +64,13 @@ func (srv *Service) HealthHandler(payload domain.Health) error {
 }
 
 // ActionResponse handles action response from a device
-func (srv *Service) ActionResponse(action string, payload []byte) error {
+func (srv *Service) ActionResponse(clientID, action string, payload []byte) error {
 	// Act based on the message action
 	switch action {
 	case "device":
 		return srv.actionDevice(payload)
-	//case "list":
+	case "list":
+		return srv.actionList(clientID, payload)
 	//case "install":
 	//case "remove":
 	//case "refresh":
@@ -84,12 +87,13 @@ func (srv *Service) ActionResponse(action string, payload []byte) error {
 	}
 }
 
+// actionDevice process the device info received from a device
 func (srv *Service) actionDevice(payload []byte) error {
 	// Parse the payload
 	d := domain.PublishDevice{}
 	if err := json.Unmarshal(payload, &d); err != nil {
-		log.Printf("Error in action message: %v", err)
-		return fmt.Errorf("error in action message: %v", err)
+		log.Printf("Error in device action message: %v", err)
+		return fmt.Errorf("error in device action message: %v", err)
 	}
 
 	// Get the device details and create/update the device
@@ -110,4 +114,50 @@ func (srv *Service) actionDevice(payload []byte) error {
 	}
 	_, err = srv.DB.DeviceCreate(device)
 	return err
+}
+
+// actionList process the list of snaps received from a device
+func (srv *Service) actionList(clientID string, payload []byte) error {
+	// Parse the payload
+	p := domain.PublishSnaps{}
+	if err := json.Unmarshal(payload, &p); err != nil {
+		log.Printf("Error in list action message: %v", err)
+		return fmt.Errorf("error in list action message: %v", err)
+	}
+
+	// Get the device details
+	device, err := srv.DB.DeviceGet(clientID)
+	if err != nil {
+		return fmt.Errorf("cannot find device with ID `%s`", clientID)
+	}
+
+	// Delete the existing snap list for the device
+	if err := srv.DB.DeviceSnapDelete(device.ID); err != nil {
+		return fmt.Errorf("error deleting snap records: %v", err)
+	}
+
+	// Add the installed snaps
+	for _, s := range p.Result {
+		snap := datastore.DeviceSnap{
+			//Created       time.Time
+			//Modified      time.Time
+			DeviceID:      device.ID,
+			Name:          s.Name,
+			InstalledSize: s.InstalledSize,
+			InstalledDate: s.InstalledDate,
+			Status:        s.Status,
+			Channel:       s.Channel,
+			Confinement:   s.Confinement,
+			Version:       s.Version,
+			Revision:      s.Revision,
+			Devmode:       s.Devmode,
+			Config:        s.Config,
+		}
+
+		if err := srv.DB.DeviceSnapUpsert(snap); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
