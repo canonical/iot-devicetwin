@@ -25,18 +25,20 @@ import (
 )
 
 // MockDeviceTwin mocks a device twin service
-type MockDeviceTwin struct{}
+type MockDeviceTwin struct {
+	Actions []string
+}
 
 // HealthHandler mocks the health handler
 func (twin *MockDeviceTwin) HealthHandler(payload domain.Health) error {
-	if payload.DeviceID == "invalid" {
+	if payload.DeviceID == "invalid" || payload.DeviceID == "new-device" {
 		return fmt.Errorf("MOCK error in health handler")
 	}
 	return nil
 }
 
 // ActionResponse mocks the action handler
-func (twin *MockDeviceTwin) ActionResponse(clientID, action string, payload []byte) error {
+func (twin *MockDeviceTwin) ActionResponse(clientID, actionID, action string, payload []byte) error {
 	if action == "invalid" {
 		return fmt.Errorf("MOCK error in action")
 	}
@@ -51,4 +53,24 @@ func (twin *MockDeviceTwin) DeviceSnaps(clientID string) ([]domain.DeviceSnap, e
 	return []domain.DeviceSnap{
 		{Name: "example-snap", InstalledSize: 2000, Status: "active"},
 	}, nil
+}
+
+// ActionCreate mocks the action log creation
+func (twin *MockDeviceTwin) ActionCreate(orgID, deviceID string, act domain.SubscribeAction) error {
+	if deviceID == "invalid" {
+		return fmt.Errorf("MOCK action log create")
+	}
+	if twin.Actions == nil {
+		twin.Actions = []string{}
+	}
+	twin.Actions = append(twin.Actions, act.ID)
+	return nil
+}
+
+// ActionUpdate mocks the action log update
+func (twin *MockDeviceTwin) ActionUpdate(actionID, status, message string) error {
+	if actionID == "invalid" {
+		return fmt.Errorf("MOCK action log update")
+	}
+	return nil
 }

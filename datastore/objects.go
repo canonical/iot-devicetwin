@@ -21,6 +21,19 @@ package datastore
 
 import "time"
 
+// Action is the log of an action request
+type Action struct {
+	ID             int64
+	Created        time.Time
+	Modified       time.Time
+	OrganisationID string
+	DeviceID       string
+	ActionID       string
+	Action         string
+	Status         string
+	Message        string
+}
+
 // Device the repository definition of a device
 type Device struct {
 	ID             int64

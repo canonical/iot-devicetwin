@@ -30,6 +30,7 @@ import (
 type Store struct {
 	Devices []datastore.Device
 	Snaps   []datastore.DeviceSnap
+	Actions []datastore.Action
 	lock    sync.RWMutex
 }
 
@@ -44,6 +45,7 @@ func NewStore() *Store {
 		Snaps: []datastore.DeviceSnap{
 			{DeviceID: 1, Name: "example-snap", InstalledSize: 2000, Status: "active"},
 		},
+		Actions: []datastore.Action{},
 	}
 }
 
@@ -148,4 +150,47 @@ func (mem *Store) DeviceSnapDelete(id int64) error {
 	mem.Snaps = snaps
 
 	return nil
+}
+
+// ActionCreate creates an action log
+func (mem *Store) ActionCreate(act datastore.Action) (int64, error) {
+	mem.lock.Lock()
+	defer mem.lock.Unlock()
+
+	act.ID = int64(len(mem.Actions) + 1)
+	mem.Actions = append(mem.Actions, act)
+	return act.ID, nil
+}
+
+// ActionUpdate updates an action log
+func (mem *Store) ActionUpdate(actionID, status, message string) error {
+	mem.lock.Lock()
+	defer mem.lock.Unlock()
+
+	actions := []datastore.Action{}
+	for _, a := range mem.Actions {
+		if a.ActionID == actionID {
+			a.Status = status
+			a.Message = message
+		}
+		a.Modified = time.Now()
+		actions = append(actions, a)
+	}
+	mem.Actions = actions
+	return nil
+}
+
+// ActionListForDevice fetches the actions for a device
+func (mem *Store) ActionListForDevice(clientID string) ([]datastore.Action, error) {
+	mem.lock.RLock()
+	defer mem.lock.RUnlock()
+
+	actions := []datastore.Action{}
+	for _, a := range mem.Actions {
+		if a.DeviceID == clientID {
+			actions = append(actions, a)
+		}
+	}
+
+	return actions, nil
 }

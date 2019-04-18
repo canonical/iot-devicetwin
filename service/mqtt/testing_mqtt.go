@@ -117,7 +117,8 @@ func (c *MockConnect) Close() {}
 
 // MockMessage implements an MQTT message
 type MockMessage struct {
-	Message []byte
+	Message   []byte
+	TopicPath string
 }
 
 // Duplicate mocks a duplicate message check
@@ -137,6 +138,9 @@ func (m *MockMessage) Retained() bool {
 
 // Topic mocks the topic
 func (m *MockMessage) Topic() string {
+	if len(m.TopicPath) > 0 {
+		return m.TopicPath
+	}
 	return "device/pub/aa111"
 }
 

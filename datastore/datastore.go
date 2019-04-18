@@ -32,4 +32,8 @@ type DataStore interface {
 	DeviceSnapList(id int64) ([]DeviceSnap, error)
 	DeviceSnapDelete(id int64) error
 	DeviceSnapUpsert(ds DeviceSnap) error
+
+	ActionCreate(act Action) (int64, error)
+	ActionUpdate(actionID, status, message string) error
+	ActionListForDevice(clientID string) ([]Action, error)
 }

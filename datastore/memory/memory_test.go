@@ -47,6 +47,7 @@ func TestStore_DeviceGet(t *testing.T) {
 				t.Errorf("Store.DeviceGet() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if !tt.wantErr {
 				if got.DeviceID != tt.args.id {
 					t.Errorf("Store.DeviceGet() device ID = %v, wantErr %v", got.DeviceID, tt.args.id)
@@ -131,6 +132,53 @@ func TestStore_DeviceCreate(t *testing.T) {
 				if got != tt.want {
 					t.Errorf("Store.DeviceCreate() = %v, want %v", got, tt.want)
 				}
+			}
+		})
+	}
+}
+
+func TestStore_ActionWorkflow(t *testing.T) {
+	type args struct {
+		act datastore.Action
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int64
+		wantErr bool
+	}{
+		{"valid", args{datastore.Action{ActionID: "a1", Action: "device", DeviceID: "a111"}}, 1, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mem := NewStore()
+			got, err := mem.ActionCreate(tt.args.act)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Store.ActionCreate() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Store.ActionCreate() = %v, want %v", got, tt.want)
+			}
+
+			err = mem.ActionUpdate(tt.args.act.ActionID, "complete", "Done")
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Store.ActionUpdate() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			actions, err := mem.ActionListForDevice(tt.args.act.DeviceID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Store.ActionListForDevice() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if len(actions) != 1 {
+				t.Errorf("Store.ActionListForDevice() = %v, want %v", len(actions), 1)
+			}
+
+			a := actions[0]
+			if a.ActionID != tt.args.act.ActionID && a.DeviceID != tt.args.act.DeviceID && a.Action != tt.args.act.Action && a.Status != "complete" {
+				t.Error("Store.ActionListForDevice() = store action is invalid")
 			}
 		})
 	}

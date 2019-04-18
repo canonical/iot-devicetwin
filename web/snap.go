@@ -25,6 +25,7 @@ import (
 	"net/http"
 )
 
+// SnapList is the API call to list snaps for a device
 func (wb Service) SnapList(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 

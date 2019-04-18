@@ -106,7 +106,7 @@ func (srv *Service) ActionHandler(client MQTT.Client, msg MQTT.Message) {
 	}
 
 	// Handle the action
-	if err := srv.DeviceTwin.ActionResponse(clientID, a.Action, msg.Payload()); err != nil {
+	if err := srv.DeviceTwin.ActionResponse(clientID, a.ID, a.Action, msg.Payload()); err != nil {
 		log.Printf("Error with action `%s`: %v", a.Action, err)
 	}
 }
@@ -130,7 +130,8 @@ func (srv *Service) HealthHandler(client MQTT.Client, msg MQTT.Message) {
 	}
 
 	// Update the device record
-	if err := srv.DeviceTwin.HealthHandler(h); err != nil {
+	if err := srv.DeviceTwin.HealthHandler(h); err == nil {
+		// Exit if successful
 		return
 	}
 
@@ -138,7 +139,7 @@ func (srv *Service) HealthHandler(client MQTT.Client, msg MQTT.Message) {
 	act := domain.SubscribeAction{
 		Action: "device",
 	}
-	if err := srv.triggerActionOnDevice(h.DeviceID, act); err != nil {
+	if err := srv.triggerActionOnDevice(h.OrganizationID, h.DeviceID, act); err != nil {
 		log.Printf("Triggering action: %v", err)
 	}
 }
@@ -154,7 +155,7 @@ func getClientID(msg MQTT.Message) string {
 }
 
 // TriggerActionOnDevice triggers an action on the device via MQTT
-func (srv *Service) triggerActionOnDevice(deviceID string, act domain.SubscribeAction) error {
+func (srv *Service) triggerActionOnDevice(orgID, deviceID string, act domain.SubscribeAction) error {
 	// Generate a request ID
 	id := ksuid.New()
 	act.ID = id.String()
@@ -171,8 +172,11 @@ func (srv *Service) triggerActionOnDevice(deviceID string, act domain.SubscribeA
 	err = srv.MQTT.Publish(t, string(data))
 	if err != nil {
 		log.Printf("Error in publish: %v", err)
+		return fmt.Errorf("error in publish: %v", err)
 	}
-	return err
+
+	// Log the request
+	return srv.DeviceTwin.ActionCreate(orgID, deviceID, act)
 }
 
 func serializePayload(act domain.SubscribeAction) ([]byte, error) {

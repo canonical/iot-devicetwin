@@ -86,11 +86,12 @@ func TestService_ActionHandler(t *testing.T) {
 func TestService_HealthHandler(t *testing.T) {
 	m1 := []byte(`{"orgId": "abc", "deviceId": "aa111"}`)
 	m2 := []byte(`{"orgId": "abc", "deviceId": "invalid"}`)
+	m3 := []byte(`{"orgId": "abc", "deviceId": "new-device"}`)
 
 	type fields struct {
 		Settings   *config.Settings
 		MQTT       mqtt.Connect
-		DeviceTwin devicetwin.DeviceTwin
+		DeviceTwin *devicetwin.MockDeviceTwin
 	}
 	type args struct {
 		client MQTT.Client
@@ -100,15 +101,22 @@ func TestService_HealthHandler(t *testing.T) {
 		name   string
 		fields fields
 		args   args
+		want   int
 	}{
-		{"valid", fields{settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{}}, args{&mqtt.MockClient{}, &mqtt.MockMessage{Message: m1}}},
-		{"invalid-message", fields{settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{}}, args{&mqtt.MockClient{}, &mqtt.MockMessage{}}},
-		{"invalid-clientID", fields{settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{}}, args{&mqtt.MockClient{}, &mqtt.MockMessage{Message: m2}}},
+		{"valid", fields{settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{}}, args{&mqtt.MockClient{}, &mqtt.MockMessage{Message: m1}}, 0},
+		{"invalid-message", fields{settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{}}, args{&mqtt.MockClient{}, &mqtt.MockMessage{}}, 0},
+		{"invalid-clientID", fields{settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{}}, args{&mqtt.MockClient{}, &mqtt.MockMessage{Message: m2}}, 0},
+		{"new-clientID", fields{settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{}}, args{&mqtt.MockClient{}, &mqtt.MockMessage{Message: m3, TopicPath: "device/health/new-device"}}, 1},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			srv := NewService(tt.fields.Settings, tt.fields.MQTT, tt.fields.DeviceTwin)
+
 			srv.HealthHandler(tt.args.client, tt.args.msg)
+			got := len(tt.fields.DeviceTwin.Actions)
+			if got != tt.want {
+				t.Errorf("HealthHandler() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
