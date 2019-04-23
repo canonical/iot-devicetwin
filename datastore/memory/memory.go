@@ -113,11 +113,14 @@ func (mem *Store) DeviceSnapUpsert(ds datastore.DeviceSnap) error {
 
 	if found < 0 {
 		// Not found, so create it
+		ds.Created = time.Now()
+		ds.Modified = time.Now()
 		mem.Snaps = append(mem.Snaps, ds)
 		return nil
 	}
 
 	// Update the existing record
+	ds.Modified = time.Now()
 	mem.Snaps[found] = ds
 	return nil
 }

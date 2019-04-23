@@ -114,3 +114,38 @@ func (srv *Service) actionForSnap(clientID, action string, payload []byte) (stri
 	// The payload is the task ID of the action, log it
 	return p.Result, nil
 }
+
+// actionConf process the snap response from a conf action
+func (srv *Service) actionConf(clientID string, payload []byte) error {
+	// Parse the payload
+	p := domain.PublishSnap{}
+	if err := json.Unmarshal(payload, &p); err != nil {
+		log.Printf("Error in install action message: %v", err)
+		return fmt.Errorf("error in conf action message: %v", err)
+	}
+
+	// Get the device details
+	device, err := srv.DB.DeviceGet(clientID)
+	if err != nil {
+		return fmt.Errorf("cannot find device with ID `%s`", clientID)
+	}
+
+	// Create/update the installed snap details with the current config
+	snap := datastore.DeviceSnap{
+		//Created       time.Time
+		//Modified      time.Time
+		DeviceID:      device.ID,
+		Name:          p.Result.Name,
+		InstalledSize: p.Result.InstalledSize,
+		InstalledDate: p.Result.InstalledDate,
+		Status:        p.Result.Status,
+		Channel:       p.Result.Channel,
+		Confinement:   p.Result.Confinement,
+		Version:       p.Result.Version,
+		Revision:      p.Result.Revision,
+		Devmode:       p.Result.Devmode,
+		Config:        p.Result.Config,
+	}
+
+	return srv.DB.DeviceSnapUpsert(snap)
+}
