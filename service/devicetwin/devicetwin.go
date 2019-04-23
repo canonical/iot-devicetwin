@@ -80,15 +80,10 @@ func (srv *Service) ActionResponse(clientID, actionID, action string, payload []
 		err = srv.actionDevice(payload)
 	case "list":
 		err = srv.actionList(clientID, payload)
-	case "install":
-		err = srv.actionInstall(clientID, payload)
-	//case "remove":
-	//case "refresh":
-	//case "revert":
-	//case "enable":
-	//case "disable":
+	case "install", "remove", "refresh", "revert", "enable", "disable", "setconf":
+		message, err = srv.actionForSnap(clientID, action, payload)
 	//case "conf":
-	//case "setconf":
+
 	//case "info":
 	//case "ack":
 	//case "server":

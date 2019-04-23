@@ -73,6 +73,15 @@ type PublishSnaps struct {
 	Result  []DeviceSnap `json:"result"`
 }
 
+// PublishSnapTask is the published message showing the result of a snap action
+type PublishSnapTask struct {
+	ID      string `json:"id"`
+	Action  string `json:"action"`
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Result  string `json:"result"`
+}
+
 // DeviceSnap holds the details of snap on a device
 type DeviceSnap struct {
 	DeviceID      string    `json:"deviceId"`

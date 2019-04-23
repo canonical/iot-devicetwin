@@ -102,7 +102,15 @@ func (srv *Service) actionList(clientID string, payload []byte) error {
 	return nil
 }
 
-// actionInstall process the install snap response
-func (srv *Service) actionInstall(clientID string, payload []byte) error {
-	return fmt.Errorf("not implemented")
+// actionForSnap process the snap response from an action (install, remove, refresh...)
+func (srv *Service) actionForSnap(clientID, action string, payload []byte) (string, error) {
+	// Parse the payload
+	p := domain.PublishSnapTask{}
+	if err := json.Unmarshal(payload, &p); err != nil {
+		log.Printf("Error in install action message: %v", err)
+		return "", fmt.Errorf("error in %s action message: %v", action, err)
+	}
+
+	// The payload is the task ID of the action, log it
+	return p.Result, nil
 }

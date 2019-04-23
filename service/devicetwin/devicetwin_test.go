@@ -20,10 +20,10 @@
 package devicetwin
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/datastore/memory"
 	"testing"
 
 	"github.com/CanonicalLtd/iot-devicetwin/config"
+	"github.com/CanonicalLtd/iot-devicetwin/datastore/memory"
 	"github.com/CanonicalLtd/iot-devicetwin/domain"
 )
 
@@ -56,6 +56,7 @@ func TestService_ActionResponse(t *testing.T) {
 	p2 := []byte(`{"id":"a1", "action":"device", "success":true, "message":"", "result": {"orgId":"abc", "deviceId":"d444", "brand":"example", "model":"drone-1000", "serial":"d444"}}`)
 	p3 := []byte(`{"id":"a1", "action":"device", "success":true, "message":"", "result": {"orgId":"abc", "deviceId":"a111", "brand":"example", "model":"drone-1000", "serial":"d444"}}`)
 	p4 := []byte(`{"id":"a1", "action":"list", "success":true, "message":"", "result": [{"name":"abc", "status":"active", "version":"1.0"}, {"name":"alpaca", "status":"active", "version":"2.3"}]}`)
+	p5 := []byte(`{"id":"a1", "action":"install", "success":true, "message":"", "result": "101"}`)
 
 	type args struct {
 		clientID string
@@ -75,12 +76,43 @@ func TestService_ActionResponse(t *testing.T) {
 		{"valid-list", args{"a111", "list", p4}, false},
 		{"list-empty-payload", args{"", "list", p1}, true},
 		{"list-no-device", args{"invalid", "list", p4}, true},
+
+		{"valid-install", args{"a111", "install", p5}, false},
+		{"install-empty-payload", args{"a111", "install", p1}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			srv := NewService(config.TestConfig(), memory.NewStore())
 			if err := srv.ActionResponse(tt.args.clientID, "a1", tt.args.action, tt.args.payload); (err != nil) != tt.wantErr {
 				t.Errorf("Service.ActionResponse() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestService_ActionCreate(t *testing.T) {
+	a1 := domain.SubscribeAction{
+		ID:     "aa1234",
+		Action: "install",
+		Snap:   "helloworld",
+	}
+	type args struct {
+		orgID    string
+		deviceID string
+		action   domain.SubscribeAction
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"valid", args{"abc", "a111", a1}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := NewService(config.TestConfig(), memory.NewStore())
+			if err := srv.ActionCreate(tt.args.orgID, tt.args.deviceID, tt.args.action); (err != nil) != tt.wantErr {
+				t.Errorf("Service.ActionCreate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
