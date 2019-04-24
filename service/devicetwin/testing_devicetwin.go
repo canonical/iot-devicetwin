@@ -74,3 +74,18 @@ func (twin *MockDeviceTwin) ActionUpdate(actionID, status, message string) error
 	}
 	return nil
 }
+
+// DeviceGet mocks fetching a device
+func (twin *MockDeviceTwin) DeviceGet(clientID string) (domain.Device, error) {
+	if clientID == "invalid" {
+		return domain.Device{}, fmt.Errorf("MOCK action log create")
+	}
+	return domain.Device{
+		OrganizationID: "abc",
+		DeviceID:       "c333",
+		Brand:          "canonical",
+		Model:          "ubuntu-core-18-amd64",
+		SerialNumber:   "d75f7300-abbf-4c11-bf0a-8b7103038490",
+		DeviceKey:      "CCCCCCCCC",
+	}, nil
+}

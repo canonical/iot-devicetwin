@@ -37,6 +37,8 @@ type DeviceTwin interface {
 	ActionUpdate(actionID, status, message string) error
 
 	DeviceSnaps(clientID string) ([]domain.DeviceSnap, error)
+
+	DeviceGet(clientID string) (domain.Device, error)
 }
 
 // Service implementation of the identity use cases

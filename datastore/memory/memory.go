@@ -46,8 +46,10 @@ func NewStore() *Store {
 		Snaps: []datastore.DeviceSnap{
 			{DeviceID: 1, Name: "example-snap", InstalledSize: 2000, Status: "active"},
 		},
-		Actions:        []datastore.Action{},
-		DeviceVersions: []datastore.DeviceVersion{},
+		Actions: []datastore.Action{},
+		DeviceVersions: []datastore.DeviceVersion{
+			{ID: 1, DeviceID: 3, KernelVersion: "kernel-123", OSVersionID: "core-123", Series: "16"},
+		},
 	}
 }
 

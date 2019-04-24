@@ -17,25 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package domain
+package web
 
-import "time"
+import (
+	"github.com/gorilla/mux"
+	"log"
+	"net/http"
+)
 
-// Health update contains enough details to record a device
-type Health struct {
-	OrganizationID string    `json:"orgId"`
-	DeviceID       string    `json:"deviceId"`
-	Refresh        time.Time `json:"refresh"`
-}
+// DeviceGet is the API call to get a device
+func (wb Service) DeviceGet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
 
-// Device holds the details of a device
-type Device struct {
-	OrganizationID string        `json:"orgId"`
-	DeviceID       string        `json:"deviceId"`
-	Brand          string        `json:"brand"`
-	Model          string        `json:"model"`
-	SerialNumber   string        `json:"serial"`
-	StoreID        string        `json:"store"`
-	DeviceKey      string        `json:"deviceKey"`
-	Version        DeviceVersion `json:"version"`
+	device, err := wb.Controller.DeviceGet(vars["id"])
+	if err != nil {
+		log.Printf("Error fetching the device `%s`: %v", vars["id"], err)
+		formatStandardResponse("DeviceGet", "Error fetching the device", w)
+		return
+	}
+
+	formatDeviceResponse(device, w)
 }

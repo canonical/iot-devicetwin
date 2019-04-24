@@ -33,6 +33,7 @@ func (wb Service) Router() *mux.Router {
 	router := mux.NewRouter()
 
 	router.Handle("/v1/device/{id}/snaps", Middleware(http.HandlerFunc(wb.SnapList))).Methods("GET")
+	router.Handle("/v1/device/{id}", Middleware(http.HandlerFunc(wb.DeviceGet))).Methods("GET")
 
 	return router
 }

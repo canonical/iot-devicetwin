@@ -17,25 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package domain
+package controller
 
-import "time"
+import "github.com/CanonicalLtd/iot-devicetwin/domain"
 
-// Health update contains enough details to record a device
-type Health struct {
-	OrganizationID string    `json:"orgId"`
-	DeviceID       string    `json:"deviceId"`
-	Refresh        time.Time `json:"refresh"`
-}
-
-// Device holds the details of a device
-type Device struct {
-	OrganizationID string        `json:"orgId"`
-	DeviceID       string        `json:"deviceId"`
-	Brand          string        `json:"brand"`
-	Model          string        `json:"model"`
-	SerialNumber   string        `json:"serial"`
-	StoreID        string        `json:"store"`
-	DeviceKey      string        `json:"deviceKey"`
-	Version        DeviceVersion `json:"version"`
+// DeviceGet gets the device from the database cache
+func (srv *Service) DeviceGet(clientID string) (domain.Device, error) {
+	return srv.DeviceTwin.DeviceGet(clientID)
 }
