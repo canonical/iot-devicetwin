@@ -58,6 +58,7 @@ func TestService_ActionResponse(t *testing.T) {
 	p4 := []byte(`{"id":"a1", "action":"list", "success":true, "message":"", "result": [{"name":"abc", "status":"active", "version":"1.0"}, {"name":"alpaca", "status":"active", "version":"2.3"}]}`)
 	p5 := []byte(`{"id":"a1", "action":"install", "success":true, "message":"", "result": "101"}`)
 	p6 := []byte(`{"id":"a1", "action":"conf", "success":true, "message":"", "result": {"name":"abc", "status":"active", "version":"1.0", "config":"{\"title\": \"Jack\"}"}}`)
+	p7 := []byte(`{"id":"a1", "action":"server", "success":true, "message":"", "result": {"deviceId":"a111", "osVersionId":"core-123", "series":"16", "kernelVersion":"kernel-123"}}`)
 
 	type args struct {
 		clientID string
@@ -84,6 +85,10 @@ func TestService_ActionResponse(t *testing.T) {
 		{"valid-conf", args{"a111", "conf", p6}, false},
 		{"conf-no-device", args{"invalid", "conf", p6}, true},
 		{"conf-empty-payload", args{"a111", "conf", p1}, true},
+
+		{"valid-server", args{"a111", "server", p7}, false},
+		{"server-no-device", args{"invalid", "server", p7}, true},
+		{"server-empty-payload", args{"a111", "server", p1}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

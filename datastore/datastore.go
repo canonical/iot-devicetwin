@@ -36,4 +36,8 @@ type DataStore interface {
 	ActionCreate(act Action) (int64, error)
 	ActionUpdate(actionID, status, message string) error
 	ActionListForDevice(clientID string) ([]Action, error)
+
+	DeviceVersionGet(deviceID int64) (DeviceVersion, error)
+	DeviceVersionUpsert(dv DeviceVersion) error
+	DeviceVersionDelete(id int64) error
 }

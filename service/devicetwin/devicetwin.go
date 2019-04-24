@@ -82,11 +82,11 @@ func (srv *Service) ActionResponse(clientID, actionID, action string, payload []
 		err = srv.actionList(clientID, payload)
 	case "install", "remove", "refresh", "revert", "enable", "disable", "setconf":
 		message, err = srv.actionForSnap(clientID, action, payload)
-	case "conf":
+	case "conf", "info":
 		err = srv.actionConf(clientID, payload)
-	//case "info":
 	//case "ack":
-	//case "server":
+	case "server":
+		err = srv.actionServer(clientID, payload)
 	default:
 		return fmt.Errorf("error unhandled action `%s`", action)
 	}

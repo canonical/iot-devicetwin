@@ -66,3 +66,15 @@ type DeviceSnap struct {
 	Devmode       bool
 	Config        string
 }
+
+// DeviceVersion holds the details of the OS details on the device
+type DeviceVersion struct {
+	ID            int64
+	DeviceID      int64
+	Version       string
+	Series        string
+	OSID          string
+	OSVersionID   string
+	OnClassic     bool
+	KernelVersion string
+}

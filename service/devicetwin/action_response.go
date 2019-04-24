@@ -107,7 +107,7 @@ func (srv *Service) actionForSnap(clientID, action string, payload []byte) (stri
 	// Parse the payload
 	p := domain.PublishSnapTask{}
 	if err := json.Unmarshal(payload, &p); err != nil {
-		log.Printf("Error in install action message: %v", err)
+		log.Printf("Error in %s action message: %v", action, err)
 		return "", fmt.Errorf("error in %s action message: %v", action, err)
 	}
 
@@ -120,7 +120,7 @@ func (srv *Service) actionConf(clientID string, payload []byte) error {
 	// Parse the payload
 	p := domain.PublishSnap{}
 	if err := json.Unmarshal(payload, &p); err != nil {
-		log.Printf("Error in install action message: %v", err)
+		log.Printf("Error in conf action message: %v", err)
 		return fmt.Errorf("error in conf action message: %v", err)
 	}
 
@@ -148,4 +148,33 @@ func (srv *Service) actionConf(clientID string, payload []byte) error {
 	}
 
 	return srv.DB.DeviceSnapUpsert(snap)
+}
+
+// actionServer process the response from a server action
+func (srv *Service) actionServer(clientID string, payload []byte) error {
+	// Parse the payload
+	p := domain.PublishDeviceVersion{}
+	if err := json.Unmarshal(payload, &p); err != nil {
+		log.Printf("Error in server action message: %v", err)
+		return fmt.Errorf("error in server action message: %v", err)
+	}
+
+	// Get the device details
+	device, err := srv.DB.DeviceGet(clientID)
+	if err != nil {
+		return fmt.Errorf("cannot find device with ID `%s`", clientID)
+	}
+
+	// Create/update the device OS details
+	dv := datastore.DeviceVersion{
+		DeviceID:      device.ID,
+		Version:       p.Result.Version,
+		Series:        p.Result.Series,
+		OSID:          p.Result.OSID,
+		OSVersionID:   p.Result.OSVersionID,
+		OnClassic:     p.Result.OnClassic,
+		KernelVersion: p.Result.KernelVersion,
+	}
+
+	return srv.DB.DeviceVersionUpsert(dv)
 }

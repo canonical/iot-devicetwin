@@ -183,3 +183,91 @@ func TestStore_ActionWorkflow(t *testing.T) {
 		})
 	}
 }
+
+func TestStore_DeviceVersionWorkflow(t *testing.T) {
+	type args struct {
+		dv datastore.DeviceVersion
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"valid", args{datastore.DeviceVersion{DeviceID: 1, OSID: "123", KernelVersion: "kernel-123", OSVersionID: "core-123"}}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mem := NewStore()
+			if err := mem.DeviceVersionUpsert(tt.args.dv); (err != nil) != tt.wantErr {
+				t.Errorf("Store.DeviceVersionUpsert() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if tt.wantErr {
+				return
+			}
+
+			// Get the created record
+			dv, err := mem.DeviceVersionGet(tt.args.dv.DeviceID)
+			if err != nil {
+				t.Errorf("Store.DeviceVersionGet() error = %v", err)
+			}
+			if dv.OSVersionID != tt.args.dv.OSVersionID {
+				t.Errorf("Store.DeviceVersionGet() OS version = %v, want %v", dv.OSVersionID, tt.args.dv.OSVersionID)
+			}
+
+			// Update the record
+			tt.args.dv.OSVersionID = "changed"
+			if err := mem.DeviceVersionUpsert(tt.args.dv); err != nil {
+				t.Errorf("Store.DeviceVersionUpsert() error update = %v", err)
+			}
+
+			// Get the updated record
+			dv2, err := mem.DeviceVersionGet(tt.args.dv.DeviceID)
+			if err != nil {
+				t.Errorf("Store.DeviceVersionGet() error = %v", err)
+			}
+			if dv2.OSVersionID != tt.args.dv.OSVersionID {
+				t.Errorf("Store.DeviceVersionGet() OS version updated = %v, want %v", dv2.OSVersionID, tt.args.dv.OSVersionID)
+			}
+
+			// Delete the record
+			if err := mem.DeviceVersionDelete(dv2.ID); err != nil {
+				t.Errorf("Store.DeviceVersionDelete() error update = %v", err)
+			}
+
+			// Check the record is deleted
+			if _, err := mem.DeviceVersionGet(tt.args.dv.DeviceID); err == nil {
+				t.Error("Store.DeviceVersionDelete() error delete check failed")
+			}
+		})
+	}
+}
+
+func TestStore_DeviceVersionDelete(t *testing.T) {
+	dv1 := datastore.DeviceVersion{DeviceID: 1, OSID: "123", KernelVersion: "kernel-123", OSVersionID: "core-123"}
+	type args struct {
+		dv datastore.DeviceVersion
+		id int64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"valid-delete", args{dv1, 1}, false},
+		{"invalid-delete", args{dv1, 999}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mem := NewStore()
+
+			if err := mem.DeviceVersionUpsert(tt.args.dv); err != nil {
+				t.Errorf("Store.DeviceVersionUpsert() error = %v", err)
+			}
+
+			if err := mem.DeviceVersionDelete(tt.args.id); (err != nil) != tt.wantErr {
+				t.Errorf("Store.DeviceVersionDelete() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

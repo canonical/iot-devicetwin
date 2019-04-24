@@ -28,10 +28,11 @@ import (
 
 // Store implements an in-memory store for testing
 type Store struct {
-	Devices []datastore.Device
-	Snaps   []datastore.DeviceSnap
-	Actions []datastore.Action
-	lock    sync.RWMutex
+	Devices        []datastore.Device
+	Snaps          []datastore.DeviceSnap
+	Actions        []datastore.Action
+	DeviceVersions []datastore.DeviceVersion
+	lock           sync.RWMutex
 }
 
 // NewStore creates a new memory store
@@ -45,7 +46,8 @@ func NewStore() *Store {
 		Snaps: []datastore.DeviceSnap{
 			{DeviceID: 1, Name: "example-snap", InstalledSize: 2000, Status: "active"},
 		},
-		Actions: []datastore.Action{},
+		Actions:        []datastore.Action{},
+		DeviceVersions: []datastore.DeviceVersion{},
 	}
 }
 
@@ -196,4 +198,64 @@ func (mem *Store) ActionListForDevice(clientID string) ([]datastore.Action, erro
 	}
 
 	return actions, nil
+}
+
+// DeviceVersionGet gets the OS details for a device
+func (mem *Store) DeviceVersionGet(deviceID int64) (datastore.DeviceVersion, error) {
+	mem.lock.RLock()
+	defer mem.lock.RUnlock()
+
+	for _, d := range mem.DeviceVersions {
+		if d.DeviceID == deviceID {
+			return d, nil
+		}
+	}
+	return datastore.DeviceVersion{}, fmt.Errorf("device version with device ID `%d` not found", deviceID)
+}
+
+// DeviceVersionUpsert creates or updates the device OS details
+func (mem *Store) DeviceVersionUpsert(dv datastore.DeviceVersion) error {
+	mem.lock.RLock()
+	defer mem.lock.RUnlock()
+
+	// Find the record
+	found := -1
+	for i, v := range mem.DeviceVersions {
+		if v.DeviceID == dv.DeviceID {
+			found = i
+		}
+	}
+
+	if found < 0 {
+		// Not found, so create it
+		dv.ID = int64(len(mem.DeviceVersions) + 1)
+		mem.DeviceVersions = append(mem.DeviceVersions, dv)
+		return nil
+	}
+
+	// Update the existing record
+	mem.DeviceVersions[found] = dv
+	return nil
+}
+
+// DeviceVersionDelete removes a OS record
+func (mem *Store) DeviceVersionDelete(id int64) error {
+	mem.lock.Lock()
+	defer mem.lock.Unlock()
+	versions := []datastore.DeviceVersion{}
+
+	found := false
+	for _, s := range mem.DeviceVersions {
+		if s.ID != id {
+			versions = append(versions, s)
+		} else {
+			found = true
+		}
+	}
+	mem.DeviceVersions = versions
+
+	if !found {
+		return fmt.Errorf("cannot find record with ID %d", id)
+	}
+	return nil
 }

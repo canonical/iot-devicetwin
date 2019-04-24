@@ -91,6 +91,15 @@ type PublishSnap struct {
 	Result  DeviceSnap `json:"result"`
 }
 
+// PublishDeviceVersion is the published message showing the result of a server action
+type PublishDeviceVersion struct {
+	ID      string        `json:"id"`
+	Action  string        `json:"action"`
+	Success bool          `json:"success"`
+	Message string        `json:"message"`
+	Result  DeviceVersion `json:"result"`
+}
+
 // DeviceSnap holds the details of snap on a device
 type DeviceSnap struct {
 	DeviceID      string    `json:"deviceId"`
@@ -104,4 +113,15 @@ type DeviceSnap struct {
 	Revision      int       `json:"revision"`
 	Devmode       bool      `json:"devmode"`
 	Config        string    `json:"config"`
+}
+
+// DeviceVersion holds the details of the OS on a device
+type DeviceVersion struct {
+	DeviceID      string `json:"deviceId"`
+	Version       string `json:"version"`
+	Series        string `json:"series"`
+	OSID          string `json:"osId"`
+	OSVersionID   string `json:"osVersionId"`
+	OnClassic     bool   `json:"onClassic"`
+	KernelVersion string `json:"kernelVersion"`
 }
