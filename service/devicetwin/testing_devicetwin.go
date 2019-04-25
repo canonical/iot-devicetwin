@@ -46,7 +46,7 @@ func (twin *MockDeviceTwin) ActionResponse(clientID, actionID, action string, pa
 }
 
 // DeviceSnaps mocks the snap list
-func (twin *MockDeviceTwin) DeviceSnaps(clientID string) ([]domain.DeviceSnap, error) {
+func (twin *MockDeviceTwin) DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, error) {
 	if clientID == "invalid" {
 		return nil, fmt.Errorf("MOCK snaps list")
 	}
@@ -76,9 +76,9 @@ func (twin *MockDeviceTwin) ActionUpdate(actionID, status, message string) error
 }
 
 // DeviceGet mocks fetching a device
-func (twin *MockDeviceTwin) DeviceGet(clientID string) (domain.Device, error) {
+func (twin *MockDeviceTwin) DeviceGet(orgID, clientID string) (domain.Device, error) {
 	if clientID == "invalid" {
-		return domain.Device{}, fmt.Errorf("MOCK action log create")
+		return domain.Device{}, fmt.Errorf("MOCK error device get")
 	}
 	return domain.Device{
 		OrganizationID: "abc",

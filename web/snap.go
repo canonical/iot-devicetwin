@@ -29,7 +29,7 @@ import (
 func (wb Service) SnapList(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	installed, err := wb.Controller.DeviceSnaps(vars["id"])
+	installed, err := wb.Controller.DeviceSnaps(vars["orgid"], vars["id"])
 	if err != nil {
 		log.Println("Error fetching snaps for a device:", err)
 		formatStandardResponse("SnapList", "Error fetching snaps for the device", w)
@@ -37,4 +37,18 @@ func (wb Service) SnapList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	formatSnapsResponse(installed, w)
+}
+
+// SnapInstall is the API call to install a snap for a device
+func (wb Service) SnapInstall(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	err := wb.Controller.DeviceSnapInstall(vars["orgid"], vars["id"], vars["snap"])
+	if err != nil {
+		log.Println("Error requesting snap install for the device:", err)
+		formatStandardResponse("SnapInstall", "Error requesting snap install for the device", w)
+		return
+	}
+
+	formatStandardResponse("", "", w)
 }

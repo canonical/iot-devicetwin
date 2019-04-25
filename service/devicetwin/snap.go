@@ -20,14 +20,20 @@
 package devicetwin
 
 import (
+	"fmt"
 	"github.com/CanonicalLtd/iot-devicetwin/domain"
 )
 
 // DeviceSnaps fetches the snaps for a device
-func (srv *Service) DeviceSnaps(clientID string) ([]domain.DeviceSnap, error) {
+func (srv *Service) DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, error) {
 	device, err := srv.DB.DeviceGet(clientID)
 	if err != nil {
 		return nil, err
+	}
+
+	// Validate the supplied orgid
+	if device.OrganisationID != orgID {
+		return nil, fmt.Errorf("the organization ID does not match the device")
 	}
 
 	snaps, err := srv.DB.DeviceSnapList(device.ID)

@@ -19,14 +19,22 @@
 
 package devicetwin
 
-import "github.com/CanonicalLtd/iot-devicetwin/domain"
+import (
+	"fmt"
+	"github.com/CanonicalLtd/iot-devicetwin/domain"
+)
 
 // DeviceGet fetches a device details from the database cache
-func (srv *Service) DeviceGet(clientID string) (domain.Device, error) {
+func (srv *Service) DeviceGet(orgID, clientID string) (domain.Device, error) {
 	// Get the device
 	d, err := srv.DB.DeviceGet(clientID)
 	if err != nil {
 		return domain.Device{}, err
+	}
+
+	// Validate the supplied orgid
+	if d.OrganisationID != orgID {
+		return domain.Device{}, fmt.Errorf("the organization ID does not match the device")
 	}
 
 	device := domain.Device{

@@ -22,6 +22,22 @@ package controller
 import "github.com/CanonicalLtd/iot-devicetwin/domain"
 
 // DeviceSnaps gets the device's snaps from the database cache
-func (srv *Service) DeviceSnaps(clientID string) ([]domain.DeviceSnap, error) {
-	return srv.DeviceTwin.DeviceSnaps(clientID)
+func (srv *Service) DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, error) {
+	return srv.DeviceTwin.DeviceSnaps(orgID, clientID)
+}
+
+// DeviceSnapInstall triggers installing a snap on a device
+func (srv *Service) DeviceSnapInstall(orgID, clientID, snap string) error {
+	// Validate the org and device ID
+	device, err := srv.DeviceTwin.DeviceGet(orgID, clientID)
+	if err != nil {
+		return err
+	}
+
+	// Trigger the install action on the device
+	action := domain.SubscribeAction{
+		Action: "install",
+		Snap:   snap,
+	}
+	return srv.triggerActionOnDevice(device.OrganizationID, device.DeviceID, action)
 }

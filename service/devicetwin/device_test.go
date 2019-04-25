@@ -25,7 +25,7 @@ import (
 	"testing"
 )
 
-func TestService_DeviceSnaps(t *testing.T) {
+func TestService_DeviceGet(t *testing.T) {
 	type args struct {
 		orgID    string
 		clientID string
@@ -33,27 +33,26 @@ func TestService_DeviceSnaps(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    int
 		wantErr bool
 	}{
-		{"valid", args{"abc", "a111"}, 1, false},
-		{"invalid", args{"abc", "invalid"}, 0, true},
-		{"invalid-orgid", args{"invalid", "a111"}, 0, true},
+		{"valid", args{"abc", "a111"}, false},
+		{"valid-with-server", args{"abc", "c333"}, false},
+		{"invalid", args{"abc", "invalid"}, true},
+		{"invalid-orgid", args{"invalid", "a111"}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			srv := NewService(config.TestConfig(), memory.NewStore())
-			got, err := srv.DeviceSnaps(tt.args.orgID, tt.args.clientID)
+			got, err := srv.DeviceGet(tt.args.orgID, tt.args.clientID)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Service.DeviceSnaps() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Service.DeviceGet() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if tt.wantErr {
 				return
 			}
-
-			if len(got) != tt.want {
-				t.Errorf("Service.DeviceSnaps() = %v, want %v", len(got), tt.want)
+			if got.DeviceID != tt.args.clientID {
+				t.Errorf("Service.DeviceGet() = %v, want %v", got.DeviceID, tt.args.clientID)
 			}
 		})
 	}

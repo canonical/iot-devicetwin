@@ -39,8 +39,9 @@ type Controller interface {
 	ActionHandler(client MQTT.Client, msg MQTT.Message)
 
 	// Passthrough to the device twin service
-	DeviceSnaps(clientID string) ([]domain.DeviceSnap, error)
-	DeviceGet(clientID string) (domain.Device, error)
+	DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, error)
+	DeviceSnapInstall(orgID, clientID, snap string) error
+	DeviceGet(orgID, clientID string) (domain.Device, error)
 }
 
 // Service implementation of the devicetwin service use cases
