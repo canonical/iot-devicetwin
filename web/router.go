@@ -32,9 +32,14 @@ func (wb Service) Router() *mux.Router {
 	// Start the web service router
 	router := mux.NewRouter()
 
+	// Actions on a device twin
 	router.Handle("/v1/device/{orgid}/{id}/snaps", Middleware(http.HandlerFunc(wb.SnapList))).Methods("GET")
-	router.Handle("/v1/device/{orgid}/{id}/snaps/{snap}", Middleware(http.HandlerFunc(wb.SnapInstall))).Methods("POST")
 	router.Handle("/v1/device/{orgid}/{id}", Middleware(http.HandlerFunc(wb.DeviceGet))).Methods("GET")
+
+	// Actions on a device
+	router.Handle("/v1/device/{orgid}/{id}/snaps/{snap}", Middleware(http.HandlerFunc(wb.SnapInstall))).Methods("POST")
+	router.Handle("/v1/device/{orgid}/{id}/snaps/{snap}", Middleware(http.HandlerFunc(wb.SnapRemove))).Methods("DELETE")
+	router.Handle("/v1/device/{orgid}/{id}/snaps/{snap}/{action}", Middleware(http.HandlerFunc(wb.SnapUpdateAction))).Methods("PUT")
 
 	return router
 }

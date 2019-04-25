@@ -61,29 +61,41 @@ func TestService_SnapList(t *testing.T) {
 	}
 }
 
-func TestService_SnapInstall(t *testing.T) {
+func TestService_SnapActions(t *testing.T) {
 	tests := []struct {
 		name   string
 		url    string
+		method string
 		code   int
 		result string
 	}{
-		{"valid", "/v1/device/abc/a111/snaps/helloworld", 200, ""},
-		{"invalid", "/v1/device/abc/invalid/snaps/helloworld", 400, "SnapInstall"},
+		{"valid-install", "/v1/device/abc/a111/snaps/helloworld", "POST", 200, ""},
+		{"invalid-install", "/v1/device/abc/invalid/snaps/helloworld", "POST", 400, "SnapInstall"},
+
+		{"valid-remove", "/v1/device/abc/a111/snaps/helloworld", "DELETE", 200, ""},
+		{"invalid-remove", "/v1/device/abc/invalid/snaps/helloworld", "DELETE", 400, "SnapRemove"},
+
+		{"valid-update-enable", "/v1/device/abc/a111/snaps/helloworld/enable", "PUT", 200, ""},
+		{"invalid-update-enable", "/v1/device/abc/invalid/snaps/helloworld/enable", "PUT", 400, "SnapUpdate"},
+		{"valid-update-disable", "/v1/device/abc/a111/snaps/helloworld/disable", "PUT", 200, ""},
+		{"invalid-update-disable", "/v1/device/abc/invalid/snaps/helloworld/disable", "PUT", 400, "SnapUpdate"},
+		{"valid-update-refresh", "/v1/device/abc/a111/snaps/helloworld/refresh", "PUT", 200, ""},
+		{"invalid-update-refresh", "/v1/device/abc/invalid/snaps/helloworld/refresh", "PUT", 400, "SnapUpdate"},
+		{"invalid-update-invalid", "/v1/device/abc/a111/snaps/helloworld/invalid", "PUT", 400, "SnapUpdate"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			wb := NewService(config.TestConfig(), testController())
-			w := sendRequest("POST", tt.url, nil, wb)
+			w := sendRequest(tt.method, tt.url, nil, wb)
 			if w.Code != tt.code {
-				t.Errorf("Web.SnapInstall() got = %v, want %v", w.Code, tt.code)
+				t.Errorf("Web.SnapActions() got = %v, want %v", w.Code, tt.code)
 			}
 			resp, err := parseStandardResponse(w.Body)
 			if err != nil {
-				t.Errorf("Web.SnapInstall() got = %v", err)
+				t.Errorf("Web.SnapActions() got = %v", err)
 			}
 			if resp.Code != tt.result {
-				t.Errorf("Web.SnapInstall() got = %v, want %v", resp.Code, tt.result)
+				t.Errorf("Web.SnapActions() got = %v, want %v", resp.Code, tt.result)
 			}
 		})
 	}

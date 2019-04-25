@@ -19,7 +19,10 @@
 
 package controller
 
-import "github.com/CanonicalLtd/iot-devicetwin/domain"
+import (
+	"fmt"
+	"github.com/CanonicalLtd/iot-devicetwin/domain"
+)
 
 // DeviceSnaps gets the device's snaps from the database cache
 func (srv *Service) DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, error) {
@@ -28,6 +31,26 @@ func (srv *Service) DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, er
 
 // DeviceSnapInstall triggers installing a snap on a device
 func (srv *Service) DeviceSnapInstall(orgID, clientID, snap string) error {
+	return srv.deviceSnapAction(orgID, clientID, snap, "install")
+}
+
+// DeviceSnapRemove triggers uninstalling a snap on a device
+func (srv *Service) DeviceSnapRemove(orgID, clientID, snap string) error {
+	return srv.deviceSnapAction(orgID, clientID, snap, "remove")
+}
+
+// DeviceSnapUpdate triggers a snap update on a device
+func (srv *Service) DeviceSnapUpdate(orgID, clientID, snap, action string) error {
+	switch action {
+	case "enable", "disable", "refresh":
+		return srv.deviceSnapAction(orgID, clientID, snap, action)
+	default:
+		return fmt.Errorf("invalid update action `%s`", action)
+	}
+}
+
+// deviceSnapAction triggers a snap action on a device
+func (srv *Service) deviceSnapAction(orgID, clientID, snap, action string) error {
 	// Validate the org and device ID
 	device, err := srv.DeviceTwin.DeviceGet(orgID, clientID)
 	if err != nil {
@@ -35,9 +58,9 @@ func (srv *Service) DeviceSnapInstall(orgID, clientID, snap string) error {
 	}
 
 	// Trigger the install action on the device
-	action := domain.SubscribeAction{
-		Action: "install",
+	act := domain.SubscribeAction{
+		Action: action,
 		Snap:   snap,
 	}
-	return srv.triggerActionOnDevice(device.OrganizationID, device.DeviceID, action)
+	return srv.triggerActionOnDevice(device.OrganizationID, device.DeviceID, act)
 }

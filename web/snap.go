@@ -52,3 +52,31 @@ func (wb Service) SnapInstall(w http.ResponseWriter, r *http.Request) {
 
 	formatStandardResponse("", "", w)
 }
+
+// SnapRemove is the API call to uninstall a snap for a device
+func (wb Service) SnapRemove(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	err := wb.Controller.DeviceSnapRemove(vars["orgid"], vars["id"], vars["snap"])
+	if err != nil {
+		log.Println("Error requesting snap remove for the device:", err)
+		formatStandardResponse("SnapRemove", "Error requesting snap remove for the device", w)
+		return
+	}
+
+	formatStandardResponse("", "", w)
+}
+
+// SnapUpdateAction is the API call to update a snap for a device (enable, disable, refresh)
+func (wb Service) SnapUpdateAction(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	err := wb.Controller.DeviceSnapUpdate(vars["orgid"], vars["id"], vars["snap"], vars["action"])
+	if err != nil {
+		log.Println("Error requesting snap update for the device:", err)
+		formatStandardResponse("SnapUpdate", "Error requesting snap update for the device", w)
+		return
+	}
+
+	formatStandardResponse("", "", w)
+}
