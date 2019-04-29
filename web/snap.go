@@ -21,6 +21,7 @@ package web
 
 import (
 	"github.com/gorilla/mux"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -43,8 +44,7 @@ func (wb Service) SnapList(w http.ResponseWriter, r *http.Request) {
 func (wb Service) SnapInstall(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	err := wb.Controller.DeviceSnapInstall(vars["orgid"], vars["id"], vars["snap"])
-	if err != nil {
+	if err := wb.Controller.DeviceSnapInstall(vars["orgid"], vars["id"], vars["snap"]); err != nil {
 		log.Println("Error requesting snap install for the device:", err)
 		formatStandardResponse("SnapInstall", "Error requesting snap install for the device", w)
 		return
@@ -57,8 +57,7 @@ func (wb Service) SnapInstall(w http.ResponseWriter, r *http.Request) {
 func (wb Service) SnapRemove(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	err := wb.Controller.DeviceSnapRemove(vars["orgid"], vars["id"], vars["snap"])
-	if err != nil {
+	if err := wb.Controller.DeviceSnapRemove(vars["orgid"], vars["id"], vars["snap"]); err != nil {
 		log.Println("Error requesting snap remove for the device:", err)
 		formatStandardResponse("SnapRemove", "Error requesting snap remove for the device", w)
 		return
@@ -71,10 +70,30 @@ func (wb Service) SnapRemove(w http.ResponseWriter, r *http.Request) {
 func (wb Service) SnapUpdateAction(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	err := wb.Controller.DeviceSnapUpdate(vars["orgid"], vars["id"], vars["snap"], vars["action"])
-	if err != nil {
+	if err := wb.Controller.DeviceSnapUpdate(vars["orgid"], vars["id"], vars["snap"], vars["action"]); err != nil {
 		log.Println("Error requesting snap update for the device:", err)
 		formatStandardResponse("SnapUpdate", "Error requesting snap update for the device", w)
+		return
+	}
+
+	formatStandardResponse("", "", w)
+}
+
+// SnapUpdateConf is the API call to update a snap for a device (settings)
+func (wb Service) SnapUpdateConf(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println("Error reading snap config body:", err)
+		formatStandardResponse("SnapSetConf", "Error requesting snap settings update for the device", w)
+		return
+	}
+	defer r.Body.Close()
+
+	if err := wb.Controller.DeviceSnapConf(vars["orgid"], vars["id"], vars["snap"], string(body)); err != nil {
+		log.Println("Error requesting snap settings update for the device:", err)
+		formatStandardResponse("SnapSetConf", "Error requesting snap settings update for the device", w)
 		return
 	}
 

@@ -20,6 +20,8 @@
 package web
 
 import (
+	"io"
+	"strings"
 	"testing"
 
 	"github.com/CanonicalLtd/iot-devicetwin/config"
@@ -62,31 +64,35 @@ func TestService_SnapList(t *testing.T) {
 }
 
 func TestService_SnapActions(t *testing.T) {
+	settings1 := `{"title": "Hello World!}"`
 	tests := []struct {
 		name   string
 		url    string
 		method string
+		data   io.Reader
 		code   int
 		result string
 	}{
-		{"valid-install", "/v1/device/abc/a111/snaps/helloworld", "POST", 200, ""},
-		{"invalid-install", "/v1/device/abc/invalid/snaps/helloworld", "POST", 400, "SnapInstall"},
+		{"valid-install", "/v1/device/abc/a111/snaps/helloworld", "POST", nil, 200, ""},
+		{"invalid-install", "/v1/device/abc/invalid/snaps/helloworld", "POST", nil, 400, "SnapInstall"},
 
-		{"valid-remove", "/v1/device/abc/a111/snaps/helloworld", "DELETE", 200, ""},
-		{"invalid-remove", "/v1/device/abc/invalid/snaps/helloworld", "DELETE", 400, "SnapRemove"},
+		{"valid-remove", "/v1/device/abc/a111/snaps/helloworld", "DELETE", nil, 200, ""},
+		{"invalid-remove", "/v1/device/abc/invalid/snaps/helloworld", "DELETE", nil, 400, "SnapRemove"},
 
-		{"valid-update-enable", "/v1/device/abc/a111/snaps/helloworld/enable", "PUT", 200, ""},
-		{"invalid-update-enable", "/v1/device/abc/invalid/snaps/helloworld/enable", "PUT", 400, "SnapUpdate"},
-		{"valid-update-disable", "/v1/device/abc/a111/snaps/helloworld/disable", "PUT", 200, ""},
-		{"invalid-update-disable", "/v1/device/abc/invalid/snaps/helloworld/disable", "PUT", 400, "SnapUpdate"},
-		{"valid-update-refresh", "/v1/device/abc/a111/snaps/helloworld/refresh", "PUT", 200, ""},
-		{"invalid-update-refresh", "/v1/device/abc/invalid/snaps/helloworld/refresh", "PUT", 400, "SnapUpdate"},
-		{"invalid-update-invalid", "/v1/device/abc/a111/snaps/helloworld/invalid", "PUT", 400, "SnapUpdate"},
+		{"valid-update-enable", "/v1/device/abc/a111/snaps/helloworld/enable", "PUT", nil, 200, ""},
+		{"invalid-update-enable", "/v1/device/abc/invalid/snaps/helloworld/enable", "PUT", nil, 400, "SnapUpdate"},
+		{"valid-update-disable", "/v1/device/abc/a111/snaps/helloworld/disable", "PUT", nil, 200, ""},
+		{"invalid-update-disable", "/v1/device/abc/invalid/snaps/helloworld/disable", "PUT", nil, 400, "SnapUpdate"},
+		{"valid-update-refresh", "/v1/device/abc/a111/snaps/helloworld/refresh", "PUT", nil, 200, ""},
+		{"invalid-update-refresh", "/v1/device/abc/invalid/snaps/helloworld/refresh", "PUT", nil, 400, "SnapUpdate"},
+		{"invalid-update-invalid", "/v1/device/abc/a111/snaps/helloworld/invalid", "PUT", nil, 400, "SnapUpdate"},
+		{"valid-update-settings", "/v1/device/abc/a111/snaps/helloworld/settings", "PUT", strings.NewReader(settings1), 200, ""},
+		{"invalid-update-settings", "/v1/device/abc/invalid/snaps/helloworld/settings", "PUT", strings.NewReader(settings1), 400, "SnapSetConf"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			wb := NewService(config.TestConfig(), testController())
-			w := sendRequest(tt.method, tt.url, nil, wb)
+			w := sendRequest(tt.method, tt.url, tt.data, wb)
 			if w.Code != tt.code {
 				t.Errorf("Web.SnapActions() got = %v, want %v", w.Code, tt.code)
 			}

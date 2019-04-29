@@ -31,26 +31,49 @@ func (srv *Service) DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, er
 
 // DeviceSnapInstall triggers installing a snap on a device
 func (srv *Service) DeviceSnapInstall(orgID, clientID, snap string) error {
-	return srv.deviceSnapAction(orgID, clientID, snap, "install")
+	act := domain.SubscribeAction{
+		Action: "install",
+		Snap:   snap,
+	}
+	return srv.deviceSnapAction(orgID, clientID, snap, act)
 }
 
 // DeviceSnapRemove triggers uninstalling a snap on a device
 func (srv *Service) DeviceSnapRemove(orgID, clientID, snap string) error {
-	return srv.deviceSnapAction(orgID, clientID, snap, "remove")
+	act := domain.SubscribeAction{
+		Action: "remove",
+		Snap:   snap,
+	}
+	return srv.deviceSnapAction(orgID, clientID, snap, act)
 }
 
 // DeviceSnapUpdate triggers a snap update on a device
 func (srv *Service) DeviceSnapUpdate(orgID, clientID, snap, action string) error {
 	switch action {
 	case "enable", "disable", "refresh":
-		return srv.deviceSnapAction(orgID, clientID, snap, action)
+		act := domain.SubscribeAction{
+			Action: action,
+			Snap:   snap,
+		}
+		return srv.deviceSnapAction(orgID, clientID, snap, act)
 	default:
 		return fmt.Errorf("invalid update action `%s`", action)
 	}
 }
 
+// DeviceSnapConf triggers a snap settings update on a device
+func (srv *Service) DeviceSnapConf(orgID, clientID, snap, settings string) error {
+	// Trigger the update settings action on the device
+	act := domain.SubscribeAction{
+		Action: "setconf",
+		Snap:   snap,
+		Data:   settings,
+	}
+	return srv.deviceSnapAction(orgID, clientID, snap, act)
+}
+
 // deviceSnapAction triggers a snap action on a device
-func (srv *Service) deviceSnapAction(orgID, clientID, snap, action string) error {
+func (srv *Service) deviceSnapAction(orgID, clientID, snap string, action domain.SubscribeAction) error {
 	// Validate the org and device ID
 	device, err := srv.DeviceTwin.DeviceGet(orgID, clientID)
 	if err != nil {
@@ -58,9 +81,5 @@ func (srv *Service) deviceSnapAction(orgID, clientID, snap, action string) error
 	}
 
 	// Trigger the install action on the device
-	act := domain.SubscribeAction{
-		Action: action,
-		Snap:   snap,
-	}
-	return srv.triggerActionOnDevice(device.OrganizationID, device.DeviceID, act)
+	return srv.triggerActionOnDevice(device.OrganizationID, device.DeviceID, action)
 }
