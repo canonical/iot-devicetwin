@@ -271,3 +271,29 @@ func TestStore_DeviceVersionDelete(t *testing.T) {
 		})
 	}
 }
+
+func TestStore_DeviceList(t *testing.T) {
+	tests := []struct {
+		name    string
+		orgID   string
+		want    int
+		wantErr bool
+	}{
+		{"valid", "abc", 3, false},
+		{"valid-no-devices", "none", 0, false},
+		{"valid", "invalid", 0, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mem := NewStore()
+			got, err := mem.DeviceList(tt.orgID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Store.DeviceList() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if len(got) != tt.want {
+				t.Errorf("Store.DeviceList() = %v, want %v", len(got), tt.want)
+			}
+		})
+	}
+}

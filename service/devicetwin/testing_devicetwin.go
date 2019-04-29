@@ -69,9 +69,6 @@ func (twin *MockDeviceTwin) ActionCreate(orgID, deviceID string, act domain.Subs
 
 // ActionUpdate mocks the action log update
 func (twin *MockDeviceTwin) ActionUpdate(actionID, status, message string) error {
-	if actionID == "invalid" {
-		return fmt.Errorf("MOCK action log update")
-	}
 	return nil
 }
 
@@ -87,5 +84,22 @@ func (twin *MockDeviceTwin) DeviceGet(orgID, clientID string) (domain.Device, er
 		Model:          "ubuntu-core-18-amd64",
 		SerialNumber:   "d75f7300-abbf-4c11-bf0a-8b7103038490",
 		DeviceKey:      "CCCCCCCCC",
+	}, nil
+}
+
+// DeviceList mocks fetching devices for an organization
+func (twin *MockDeviceTwin) DeviceList(orgID string) ([]domain.Device, error) {
+	if orgID == "invalid" {
+		return nil, fmt.Errorf("MOCK error device list")
+	}
+
+	return []domain.Device{
+		{OrganizationID: "abc",
+			DeviceID:     "c333",
+			Brand:        "canonical",
+			Model:        "ubuntu-core-18-amd64",
+			SerialNumber: "d75f7300-abbf-4c11-bf0a-8b7103038490",
+			DeviceKey:    "CCCCCCCCC",
+		},
 	}, nil
 }

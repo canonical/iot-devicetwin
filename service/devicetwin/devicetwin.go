@@ -38,6 +38,7 @@ type DeviceTwin interface {
 
 	DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, error)
 
+	DeviceList(orgID string) ([]domain.Device, error)
 	DeviceGet(orgID, clientID string) (domain.Device, error)
 }
 

@@ -20,9 +20,10 @@
 package devicetwin
 
 import (
+	"testing"
+
 	"github.com/CanonicalLtd/iot-devicetwin/config"
 	"github.com/CanonicalLtd/iot-devicetwin/datastore/memory"
-	"testing"
 )
 
 func TestService_DeviceGet(t *testing.T) {
@@ -53,6 +54,35 @@ func TestService_DeviceGet(t *testing.T) {
 			}
 			if got.DeviceID != tt.args.clientID {
 				t.Errorf("Service.DeviceGet() = %v, want %v", got.DeviceID, tt.args.clientID)
+			}
+		})
+	}
+}
+
+func TestService_DeviceList(t *testing.T) {
+	type args struct {
+		orgID string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{"valid", args{"abc"}, 3, false},
+		{"valid-no-devices", args{"none"}, 0, false},
+		{"invalid", args{"invalid"}, 0, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := NewService(config.TestConfig(), memory.NewStore())
+			got, err := srv.DeviceList(tt.args.orgID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Service.DeviceList() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if len(got) != tt.want {
+				t.Errorf("Service.DeviceList() = %v, want %v", len(got), tt.want)
 			}
 		})
 	}

@@ -25,6 +25,7 @@ import (
 
 // DataStore is the interfaces for the data repository
 type DataStore interface {
+	DeviceList(orgID string) ([]Device, error)
 	DeviceGet(id string) (Device, error)
 	DevicePing(id string, refresh time.Time) error
 	DeviceCreate(Device) (int64, error)

@@ -65,3 +65,26 @@ func (srv *Service) DeviceGet(orgID, clientID string) (domain.Device, error) {
 
 	return device, nil
 }
+
+// DeviceList fetches devices from the database cache
+func (srv *Service) DeviceList(orgID string) ([]domain.Device, error) {
+	dd, err := srv.DB.DeviceList(orgID)
+	if err != nil {
+		return nil, err
+	}
+
+	devices := []domain.Device{}
+	for _, d := range dd {
+		devices = append(devices, domain.Device{
+			OrganizationID: d.OrganisationID,
+			DeviceID:       d.DeviceID,
+			Brand:          d.Brand,
+			Model:          d.Model,
+			SerialNumber:   d.SerialNumber,
+			StoreID:        d.StoreID,
+			DeviceKey:      d.DeviceKey,
+			Version:        domain.DeviceVersion{},
+		})
+	}
+	return devices, nil
+}

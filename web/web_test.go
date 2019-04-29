@@ -42,6 +42,13 @@ func parseSnapsResponse(r io.Reader) (SnapsResponse, error) {
 	return result, err
 }
 
+func parseDevicesResponse(r io.Reader) (DevicesResponse, error) {
+	// Parse the response
+	result := DevicesResponse{}
+	err := json.NewDecoder(r).Decode(&result)
+	return result, err
+}
+
 func parseStandardResponse(r io.Reader) (StandardResponse, error) {
 	// Parse the response
 	result := StandardResponse{}

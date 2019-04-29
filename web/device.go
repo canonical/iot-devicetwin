@@ -38,3 +38,17 @@ func (wb Service) DeviceGet(w http.ResponseWriter, r *http.Request) {
 
 	formatDeviceResponse(device, w)
 }
+
+// DeviceList is the API call to get devices
+func (wb Service) DeviceList(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	devices, err := wb.Controller.DeviceList(vars["orgid"])
+	if err != nil {
+		log.Printf("Error fetching the device list for `%s`: %v", vars["orgid"], err)
+		formatStandardResponse("DeviceList", "Error fetching devices", w)
+		return
+	}
+
+	formatDevicesResponse(devices, w)
+}

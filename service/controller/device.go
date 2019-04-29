@@ -25,3 +25,8 @@ import "github.com/CanonicalLtd/iot-devicetwin/domain"
 func (srv *Service) DeviceGet(orgID, clientID string) (domain.Device, error) {
 	return srv.DeviceTwin.DeviceGet(orgID, clientID)
 }
+
+// DeviceList gets the devices from the database cache
+func (srv *Service) DeviceList(orgID string) ([]domain.Device, error) {
+	return srv.DeviceTwin.DeviceList(orgID)
+}

@@ -53,6 +53,25 @@ func NewStore() *Store {
 	}
 }
 
+// DeviceList fetches existing devices
+func (mem *Store) DeviceList(orgID string) ([]datastore.Device, error) {
+	mem.lock.RLock()
+	defer mem.lock.RUnlock()
+
+	if orgID == "invalid" {
+		return nil, fmt.Errorf("MOCK list error")
+	}
+
+	devices := []datastore.Device{}
+
+	for _, d := range mem.Devices {
+		if d.OrganisationID == orgID {
+			devices = append(devices, d)
+		}
+	}
+	return devices, nil
+}
+
 // DeviceGet fetches an existing device
 func (mem *Store) DeviceGet(id string) (datastore.Device, error) {
 	mem.lock.RLock()

@@ -41,10 +41,16 @@ type SnapsResponse struct {
 	Snaps []domain.DeviceSnap `json:"snaps"`
 }
 
-// DeviceResponse is the JSON response to list snaps
+// DeviceResponse is the JSON response to get a device
 type DeviceResponse struct {
 	StandardResponse
 	Device domain.Device `json:"device"`
+}
+
+// DevicesResponse is the JSON response to list devices
+type DevicesResponse struct {
+	StandardResponse
+	Devices []domain.Device `json:"devices"`
 }
 
 // formatStandardResponse returns a JSON response from an API method, indicating success or failure
@@ -69,10 +75,19 @@ func formatSnapsResponse(snaps []domain.DeviceSnap, w http.ResponseWriter) {
 	encodeResponse(w, response)
 }
 
-// formatDeviceResponse returns a JSON response from a snap list API method
+// formatDeviceResponse returns a JSON response from a device get API method
 func formatDeviceResponse(device domain.Device, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", JSONHeader)
 	response := DeviceResponse{StandardResponse{}, device}
+
+	// Encode the response as JSON
+	encodeResponse(w, response)
+}
+
+// formatDevicesResponse returns a JSON response from a device list API method
+func formatDevicesResponse(devices []domain.Device, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", JSONHeader)
+	response := DevicesResponse{StandardResponse{}, devices}
 
 	// Encode the response as JSON
 	encodeResponse(w, response)

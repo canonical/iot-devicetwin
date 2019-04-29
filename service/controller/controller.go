@@ -40,6 +40,7 @@ type Controller interface {
 
 	// Passthrough to the device twin service
 	DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, error)
+	DeviceList(orgID string) ([]domain.Device, error)
 	DeviceGet(orgID, clientID string) (domain.Device, error)
 
 	// Actions on a device
