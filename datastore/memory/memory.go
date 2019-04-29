@@ -32,6 +32,7 @@ type Store struct {
 	Snaps          []datastore.DeviceSnap
 	Actions        []datastore.Action
 	DeviceVersions []datastore.DeviceVersion
+	Groups         []datastore.Group
 	lock           sync.RWMutex
 }
 
@@ -50,6 +51,7 @@ func NewStore() *Store {
 		DeviceVersions: []datastore.DeviceVersion{
 			{ID: 1, DeviceID: 3, KernelVersion: "kernel-123", OSVersionID: "core-123", Series: "16"},
 		},
+		Groups: []datastore.Group{{OrganisationID: "abc", Name: "workshop"}},
 	}
 }
 
@@ -279,4 +281,30 @@ func (mem *Store) DeviceVersionDelete(id int64) error {
 		return fmt.Errorf("cannot find record with ID %d", id)
 	}
 	return nil
+}
+
+// GroupCreate creates a group record
+func (mem *Store) GroupCreate(orgID, name string) (int64, error) {
+	mem.lock.Lock()
+	defer mem.lock.Unlock()
+
+	if orgID == "invalid" {
+		return 0, fmt.Errorf("error cannot find organization `%s`", orgID)
+	}
+
+	for _, g := range mem.Groups {
+		if g.OrganisationID == orgID && g.Name == name {
+			return 0, fmt.Errorf("group `%s1` already exists for organization `%s`", name, orgID)
+		}
+	}
+
+	g := datastore.Group{
+		ID:             int64(len(mem.Groups) + 1),
+		OrganisationID: orgID,
+		Name:           name,
+		Created:        time.Now(),
+		Modified:       time.Now(),
+	}
+	mem.Groups = append(mem.Groups, g)
+	return g.ID, nil
 }

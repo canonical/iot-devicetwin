@@ -43,6 +43,9 @@ func (wb Service) Router() *mux.Router {
 	router.Handle("/v1/device/{orgid}/{id}/snaps/{snap}/settings", Middleware(http.HandlerFunc(wb.SnapUpdateConf))).Methods("PUT")
 	router.Handle("/v1/device/{orgid}/{id}/snaps/{snap}/{action}", Middleware(http.HandlerFunc(wb.SnapUpdateAction))).Methods("PUT")
 
+	// Actions on a group
+	router.Handle("/v1/group/{orgid}", Middleware(http.HandlerFunc(wb.GroupCreate))).Methods("POST")
+
 	return router
 }
 

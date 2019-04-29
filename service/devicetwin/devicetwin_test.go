@@ -127,3 +127,26 @@ func TestService_ActionCreate(t *testing.T) {
 		})
 	}
 }
+
+func TestService_GroupWorkflow(t *testing.T) {
+	type args struct {
+		orgID string
+		name  string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"valid", args{"abc", "test-group"}, false},
+		{"invalid", args{"invalid", "test-group"}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := NewService(config.TestConfig(), memory.NewStore())
+			if err := srv.GroupCreate(tt.args.orgID, tt.args.name); (err != nil) != tt.wantErr {
+				t.Errorf("Service.GroupCreate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

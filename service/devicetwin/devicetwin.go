@@ -40,6 +40,8 @@ type DeviceTwin interface {
 
 	DeviceList(orgID string) ([]domain.Device, error)
 	DeviceGet(orgID, clientID string) (domain.Device, error)
+
+	GroupCreate(orgID, name string) error
 }
 
 // Service implementation of the identity use cases

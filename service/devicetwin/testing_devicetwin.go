@@ -103,3 +103,11 @@ func (twin *MockDeviceTwin) DeviceList(orgID string) ([]domain.Device, error) {
 		},
 	}, nil
 }
+
+// GroupCreate mocks creating a group
+func (twin *MockDeviceTwin) GroupCreate(orgID, name string) error {
+	if orgID == "invalid" {
+		return fmt.Errorf("MOCK error group create")
+	}
+	return nil
+}

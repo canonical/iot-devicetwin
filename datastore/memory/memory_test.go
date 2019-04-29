@@ -297,3 +297,33 @@ func TestStore_DeviceList(t *testing.T) {
 		})
 	}
 }
+
+func TestStore_GroupCreate(t *testing.T) {
+	type args struct {
+		orgID string
+		name  string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int64
+		wantErr bool
+	}{
+		{"valid", args{"abc", "test-group"}, 2, false},
+		{"valid-exists", args{"abc", "workshop"}, 0, true},
+		{"invalid", args{"invalid", "test-group"}, 0, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mem := NewStore()
+			got, err := mem.GroupCreate(tt.args.orgID, tt.args.name)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Store.GroupCreate() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Store.GroupCreate() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -78,3 +78,12 @@ type DeviceVersion struct {
 	OnClassic     bool
 	KernelVersion string
 }
+
+// Group is the record for grouping devices
+type Group struct {
+	ID             int64
+	Created        time.Time
+	Modified       time.Time
+	OrganisationID string
+	Name           string
+}
