@@ -136,16 +136,25 @@ func TestService_GroupWorkflow(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
+		count   int
 		wantErr bool
 	}{
-		{"valid", args{"abc", "test-group"}, false},
-		{"invalid", args{"invalid", "test-group"}, true},
+		{"valid", args{"abc", "test-group"}, 2, false},
+		{"invalid", args{"invalid", "test-group"}, 0, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			srv := NewService(config.TestConfig(), memory.NewStore())
 			if err := srv.GroupCreate(tt.args.orgID, tt.args.name); (err != nil) != tt.wantErr {
 				t.Errorf("Service.GroupCreate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			groups, err := srv.GroupList(tt.args.orgID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Service.GroupList() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if len(groups) != tt.count {
+				t.Errorf("Service.GroupList() count = %v, wantErr %v", len(groups), tt.count)
 			}
 		})
 	}

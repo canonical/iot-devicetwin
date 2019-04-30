@@ -28,7 +28,7 @@ import (
 	"net/http"
 )
 
-// GroupCreate is the API call to create a device
+// GroupCreate is the API call to create a group
 func (wb Service) GroupCreate(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -48,6 +48,20 @@ func (wb Service) GroupCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	formatStandardResponse("", "", w)
+}
+
+// GroupList is the API call to list groups
+func (wb Service) GroupList(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	groups, err := wb.Controller.GroupList(vars["orgid"])
+	if err != nil {
+		log.Printf("Error listing the groups for organization `%s`: %v", vars["orgid"], err)
+		formatStandardResponse("GroupList", "Error listing the groups", w)
+		return
+	}
+
+	formatGroupsResponse(groups, w)
 }
 
 func parseGroupRequest(r io.Reader) (domain.Group, error) {

@@ -19,8 +19,27 @@
 
 package devicetwin
 
+import "github.com/CanonicalLtd/iot-devicetwin/domain"
+
 // GroupCreate creates a device group
 func (srv *Service) GroupCreate(orgID, name string) error {
 	_, err := srv.DB.GroupCreate(orgID, name)
 	return err
+}
+
+// GroupList lists groups for an organization
+func (srv *Service) GroupList(orgID string) ([]domain.Group, error) {
+	gg, err := srv.DB.GroupList(orgID)
+	if err != nil {
+		return nil, err
+	}
+
+	groups := []domain.Group{}
+	for _, g := range gg {
+		groups = append(groups, domain.Group{
+			OrganizationID: g.OrganisationID,
+			Name:           g.Name,
+		})
+	}
+	return groups, nil
 }

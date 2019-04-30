@@ -308,3 +308,22 @@ func (mem *Store) GroupCreate(orgID, name string) (int64, error) {
 	mem.Groups = append(mem.Groups, g)
 	return g.ID, nil
 }
+
+// GroupList lists groups for an organization
+func (mem *Store) GroupList(orgID string) ([]datastore.Group, error) {
+	mem.lock.Lock()
+	defer mem.lock.Unlock()
+
+	if orgID == "invalid" {
+		return nil, fmt.Errorf("error cannot find organization `%s`", orgID)
+	}
+
+	groups := []datastore.Group{}
+	for _, g := range mem.Groups {
+		if g.OrganisationID == orgID {
+			groups = append(groups, g)
+		}
+	}
+
+	return groups, nil
+}

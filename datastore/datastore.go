@@ -43,4 +43,5 @@ type DataStore interface {
 	DeviceVersionDelete(id int64) error
 
 	GroupCreate(orgID, name string) (int64, error)
+	GroupList(orgID string) ([]Group, error)
 }

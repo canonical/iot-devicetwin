@@ -19,7 +19,14 @@
 
 package controller
 
+import "github.com/CanonicalLtd/iot-devicetwin/domain"
+
 // GroupCreate creates a device group
 func (srv *Service) GroupCreate(orgID, name string) error {
 	return srv.DeviceTwin.GroupCreate(orgID, name)
+}
+
+// GroupList lists the groups for an organization
+func (srv *Service) GroupList(orgID string) ([]domain.Group, error) {
+	return srv.DeviceTwin.GroupList(orgID)
 }

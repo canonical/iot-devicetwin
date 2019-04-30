@@ -45,6 +45,7 @@ func (wb Service) Router() *mux.Router {
 
 	// Actions on a group
 	router.Handle("/v1/group/{orgid}", Middleware(http.HandlerFunc(wb.GroupCreate))).Methods("POST")
+	router.Handle("/v1/group/{orgid}", Middleware(http.HandlerFunc(wb.GroupList))).Methods("GET")
 
 	return router
 }
