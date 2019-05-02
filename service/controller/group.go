@@ -30,3 +30,23 @@ func (srv *Service) GroupCreate(orgID, name string) error {
 func (srv *Service) GroupList(orgID string) ([]domain.Group, error) {
 	return srv.DeviceTwin.GroupList(orgID)
 }
+
+// GroupGet retrieves a device group
+func (srv *Service) GroupGet(orgID, name string) (domain.Group, error) {
+	return srv.DeviceTwin.GroupGet(orgID, name)
+}
+
+// GroupLinkDevice links a device to a group
+func (srv *Service) GroupLinkDevice(orgID, name, clientID string) error {
+	return srv.DeviceTwin.GroupLinkDevice(orgID, name, clientID)
+}
+
+// GroupUnlinkDevice unlinks a device from a group
+func (srv *Service) GroupUnlinkDevice(orgID, name, clientID string) error {
+	return srv.DeviceTwin.GroupUnlinkDevice(orgID, name, clientID)
+}
+
+// GroupGetDevices retrieves the devices from a group
+func (srv *Service) GroupGetDevices(orgID, name string) ([]domain.Device, error) {
+	return srv.DeviceTwin.GroupGetDevices(orgID, name)
+}

@@ -159,3 +159,67 @@ func TestService_GroupWorkflow(t *testing.T) {
 		})
 	}
 }
+
+func TestService_GroupLinkWorkflow(t *testing.T) {
+	type args struct {
+		orgID    string
+		name     string
+		deviceID string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		count   int
+		wantErr bool
+	}{
+		{"valid", args{"abc", "workshop", "c333"}, 2, false},
+		{"invalid", args{"invalid", "workshop", "c333"}, 0, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := NewService(config.TestConfig(), memory.NewStore())
+
+			// Get a group
+			group, err := srv.GroupGet(tt.args.orgID, tt.args.name)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Service.GroupGet() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if !tt.wantErr {
+				if group.Name != tt.args.name {
+					t.Errorf("Service.GroupGet() name = %v, wantErr %v", group.Name, tt.args.name)
+				}
+			}
+
+			// Link a device to a group
+			if err := srv.GroupLinkDevice(tt.args.orgID, tt.args.name, tt.args.deviceID); (err != nil) != tt.wantErr {
+				t.Errorf("Service.GroupLinkDevice() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			// Get the devices for the group
+			devices, err := srv.GroupGetDevices(tt.args.orgID, tt.args.name)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Service.GroupGetDevices() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if len(devices) != tt.count {
+				t.Errorf("Service.GroupGetDevices() count = %v, wantErr %v", len(devices), tt.count)
+			}
+
+			// Unlink a device from a group
+			if err := srv.GroupUnlinkDevice(tt.args.orgID, tt.args.name, tt.args.deviceID); (err != nil) != tt.wantErr {
+				t.Errorf("Service.GroupUnlinkDevice() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			// Get the devices for the group
+			devices2, err := srv.GroupGetDevices(tt.args.orgID, tt.args.name)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Service.GroupGetDevices() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if tt.count > 0 {
+				tt.count = tt.count - 1
+			}
+			if len(devices2) != tt.count {
+				t.Errorf("Service.GroupGetDevices() count = %v, wantErr %v", len(devices2), tt.count)
+			}
+		})
+	}
+}

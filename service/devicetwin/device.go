@@ -21,6 +21,7 @@ package devicetwin
 
 import (
 	"fmt"
+	"github.com/CanonicalLtd/iot-devicetwin/datastore"
 	"github.com/CanonicalLtd/iot-devicetwin/domain"
 )
 
@@ -37,16 +38,7 @@ func (srv *Service) DeviceGet(orgID, clientID string) (domain.Device, error) {
 		return domain.Device{}, fmt.Errorf("the organization ID does not match the device")
 	}
 
-	device := domain.Device{
-		OrganizationID: d.OrganisationID,
-		DeviceID:       d.DeviceID,
-		Brand:          d.Brand,
-		Model:          d.Model,
-		SerialNumber:   d.SerialNumber,
-		StoreID:        d.StoreID,
-		DeviceKey:      d.DeviceKey,
-		Version:        domain.DeviceVersion{},
-	}
+	device := dataToDomainDevice(d)
 
 	// Get the details of the server (OS)
 	dv, err := srv.DB.DeviceVersionGet(d.ID)
@@ -75,16 +67,20 @@ func (srv *Service) DeviceList(orgID string) ([]domain.Device, error) {
 
 	devices := []domain.Device{}
 	for _, d := range dd {
-		devices = append(devices, domain.Device{
-			OrganizationID: d.OrganisationID,
-			DeviceID:       d.DeviceID,
-			Brand:          d.Brand,
-			Model:          d.Model,
-			SerialNumber:   d.SerialNumber,
-			StoreID:        d.StoreID,
-			DeviceKey:      d.DeviceKey,
-			Version:        domain.DeviceVersion{},
-		})
+		devices = append(devices, dataToDomainDevice(d))
 	}
 	return devices, nil
+}
+
+func dataToDomainDevice(d datastore.Device) domain.Device {
+	return domain.Device{
+		OrganizationID: d.OrganisationID,
+		DeviceID:       d.DeviceID,
+		Brand:          d.Brand,
+		Model:          d.Model,
+		SerialNumber:   d.SerialNumber,
+		StoreID:        d.StoreID,
+		DeviceKey:      d.DeviceKey,
+		Version:        domain.DeviceVersion{},
+	}
 }

@@ -44,4 +44,8 @@ type DataStore interface {
 
 	GroupCreate(orgID, name string) (int64, error)
 	GroupList(orgID string) ([]Group, error)
+	GroupGet(orgID, name string) (Group, error)
+	GroupLinkDevice(orgID, name, clientID string) error
+	GroupUnlinkDevice(orgID, name, clientID string) error
+	GroupGetDevices(orgID, name string) ([]Device, error)
 }

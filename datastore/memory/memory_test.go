@@ -327,3 +327,77 @@ func TestStore_GroupCreate(t *testing.T) {
 		})
 	}
 }
+
+func TestStore_GroupDeviceWorkflow(t *testing.T) {
+	type args struct {
+		orgID  string
+		name   string
+		device string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		count   int
+		wantErr bool
+	}{
+		{"valid", args{"abc", "workshop", "c333"}, 2, false},
+		{"valid-exists", args{"abc", "workshop", "a111"}, 1, false},
+		{"invalid-org", args{"invalid", "workshop", "c333"}, 0, true},
+		{"invalid-group", args{"abc", "invalid", "c333"}, 0, true},
+		{"invalid-device", args{"abc", "workshop", "invalid"}, 0, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mem := NewStore()
+			// Get the group
+			_, err := mem.GroupGet(tt.args.orgID, tt.args.name)
+			if (err != nil) != tt.wantErr && tt.args.device != "invalid" {
+				t.Errorf("Store.GroupGet() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			// Link device to the group
+			err = mem.GroupLinkDevice(tt.args.orgID, tt.args.name, tt.args.device)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Store.GroupLinkDevice() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			// Get devices for the group
+			if tt.args.device != "invalid" {
+				devices, err := mem.GroupGetDevices(tt.args.orgID, tt.args.name)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("Store.GroupGetDevices() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if len(devices) != tt.count {
+					t.Errorf("Store.GroupGetDevices() count = %v, expected %v", len(devices), tt.count)
+					return
+				}
+			}
+
+			// Unlink device from the group
+			err = mem.GroupUnlinkDevice(tt.args.orgID, tt.args.name, tt.args.device)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Store.GroupUnlinkDevice() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			// Get devices for the group
+			if tt.args.device != "invalid" {
+				devices2, err := mem.GroupGetDevices(tt.args.orgID, tt.args.name)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("Store.GroupGetDevices() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if tt.count > 0 {
+					tt.count = tt.count - 1
+				}
+				if len(devices2) != tt.count {
+					t.Errorf("Store.GroupGetDevices() count = %v, expected %v", len(devices2), tt.count)
+					return
+				}
+			}
+		})
+	}
+}

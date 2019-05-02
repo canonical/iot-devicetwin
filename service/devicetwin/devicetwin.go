@@ -43,6 +43,10 @@ type DeviceTwin interface {
 
 	GroupCreate(orgID, name string) error
 	GroupList(orgID string) ([]domain.Group, error)
+	GroupGet(orgID, name string) (domain.Group, error)
+	GroupLinkDevice(orgID, name, clientID string) error
+	GroupUnlinkDevice(orgID, name, clientID string) error
+	GroupGetDevices(orgID, name string) ([]domain.Device, error)
 }
 
 // Service implementation of the identity use cases

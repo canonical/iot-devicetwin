@@ -59,6 +59,12 @@ type GroupsResponse struct {
 	Groups []domain.Group `json:"groups"`
 }
 
+// GroupResponse is the JSON response to list groups
+type GroupResponse struct {
+	StandardResponse
+	Group domain.Group `json:"group"`
+}
+
 // formatStandardResponse returns a JSON response from an API method, indicating success or failure
 func formatStandardResponse(code, message string, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", JSONHeader)
@@ -103,6 +109,15 @@ func formatDevicesResponse(devices []domain.Device, w http.ResponseWriter) {
 func formatGroupsResponse(groups []domain.Group, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", JSONHeader)
 	response := GroupsResponse{StandardResponse{}, groups}
+
+	// Encode the response as JSON
+	encodeResponse(w, response)
+}
+
+// formatGroupResponse returns a JSON response from a get group API method
+func formatGroupResponse(group domain.Group, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", JSONHeader)
+	response := GroupResponse{StandardResponse{}, group}
 
 	// Encode the response as JSON
 	encodeResponse(w, response)

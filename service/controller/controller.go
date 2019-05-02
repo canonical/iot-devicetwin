@@ -44,6 +44,10 @@ type Controller interface {
 	DeviceGet(orgID, clientID string) (domain.Device, error)
 	GroupCreate(orgID, name string) error
 	GroupList(orgID string) ([]domain.Group, error)
+	GroupGet(orgID, name string) (domain.Group, error)
+	GroupLinkDevice(orgID, name, clientID string) error
+	GroupUnlinkDevice(orgID, name, clientID string) error
+	GroupGetDevices(orgID, name string) ([]domain.Device, error)
 
 	// Actions on a device
 	DeviceSnapInstall(orgID, clientID, snap string) error

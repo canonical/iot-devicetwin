@@ -64,6 +64,60 @@ func (wb Service) GroupList(w http.ResponseWriter, r *http.Request) {
 	formatGroupsResponse(groups, w)
 }
 
+// GroupGet is the API call to retrieve a group
+func (wb Service) GroupGet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	group, err := wb.Controller.GroupGet(vars["orgid"], vars["name"])
+	if err != nil {
+		log.Printf("Error fetching the group for organization `%s`: %v", vars["orgid"], err)
+		formatStandardResponse("GroupGet", "Error fetching the group", w)
+		return
+	}
+
+	formatGroupResponse(group, w)
+}
+
+// GroupLinkDevice is the API call to link a device to a group
+func (wb Service) GroupLinkDevice(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	if err := wb.Controller.GroupLinkDevice(vars["orgid"], vars["name"], vars["id"]); err != nil {
+		log.Printf("Error linking the device and group `%s` - `%s`: %v", vars["id"], vars["name"], err)
+		formatStandardResponse("GroupLink", "Error linking the device to the group", w)
+		return
+	}
+
+	formatStandardResponse("", "", w)
+}
+
+// GroupUnlinkDevice is the API call to unlink a device from a group
+func (wb Service) GroupUnlinkDevice(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	if err := wb.Controller.GroupUnlinkDevice(vars["orgid"], vars["name"], vars["id"]); err != nil {
+		log.Printf("Error unlinking the device and group `%s` - `%s`: %v", vars["id"], vars["name"], err)
+		formatStandardResponse("GroupUnlink", "Error unlinking the device to the group", w)
+		return
+	}
+
+	formatStandardResponse("", "", w)
+}
+
+// GroupGetDevices is the API call to get the devices for a group
+func (wb Service) GroupGetDevices(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	devices, err := wb.Controller.GroupGetDevices(vars["orgid"], vars["name"])
+	if err != nil {
+		log.Printf("Error fetching the devices for group `%s`: %v", vars["name"], err)
+		formatStandardResponse("GroupDevices", "Error fetching the devices for the group", w)
+		return
+	}
+
+	formatDevicesResponse(devices, w)
+}
+
 func parseGroupRequest(r io.Reader) (domain.Group, error) {
 	result := domain.Group{}
 	err := json.NewDecoder(r).Decode(&result)

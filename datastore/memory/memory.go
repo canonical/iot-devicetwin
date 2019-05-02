@@ -33,6 +33,7 @@ type Store struct {
 	Actions        []datastore.Action
 	DeviceVersions []datastore.DeviceVersion
 	Groups         []datastore.Group
+	GroupLinks     []datastore.GroupDeviceLink
 	lock           sync.RWMutex
 }
 
@@ -51,7 +52,8 @@ func NewStore() *Store {
 		DeviceVersions: []datastore.DeviceVersion{
 			{ID: 1, DeviceID: 3, KernelVersion: "kernel-123", OSVersionID: "core-123", Series: "16"},
 		},
-		Groups: []datastore.Group{{OrganisationID: "abc", Name: "workshop"}},
+		Groups:     []datastore.Group{{ID: 1, OrganisationID: "abc", Name: "workshop"}},
+		GroupLinks: []datastore.GroupDeviceLink{{ID: 1, OrganisationID: "abc", GroupID: 1, DeviceID: 1}},
 	}
 }
 
@@ -85,6 +87,19 @@ func (mem *Store) DeviceGet(id string) (datastore.Device, error) {
 		}
 	}
 	return datastore.Device{}, fmt.Errorf("device with ID `%s` not found", id)
+}
+
+// deviceGetByID fetches an existing device
+func (mem *Store) deviceGetByID(id int64) (datastore.Device, error) {
+	mem.lock.RLock()
+	defer mem.lock.RUnlock()
+
+	for _, d := range mem.Devices {
+		if d.ID == id {
+			return d, nil
+		}
+	}
+	return datastore.Device{}, fmt.Errorf("device with ID `%d` not found", id)
 }
 
 // DevicePing updates a device to indicate its health
@@ -311,8 +326,8 @@ func (mem *Store) GroupCreate(orgID, name string) (int64, error) {
 
 // GroupList lists groups for an organization
 func (mem *Store) GroupList(orgID string) ([]datastore.Group, error) {
-	mem.lock.Lock()
-	defer mem.lock.Unlock()
+	mem.lock.RLock()
+	defer mem.lock.RUnlock()
 
 	if orgID == "invalid" {
 		return nil, fmt.Errorf("error cannot find organization `%s`", orgID)
@@ -326,4 +341,102 @@ func (mem *Store) GroupList(orgID string) ([]datastore.Group, error) {
 	}
 
 	return groups, nil
+}
+
+// GroupGet fetches a group record
+func (mem *Store) GroupGet(orgID, name string) (datastore.Group, error) {
+	mem.lock.RLock()
+	defer mem.lock.RUnlock()
+
+	for _, g := range mem.Groups {
+		if g.OrganisationID == orgID && g.Name == name {
+			return g, nil
+		}
+	}
+
+	return datastore.Group{}, fmt.Errorf("error cannot find group `%s`", name)
+}
+
+// GroupLinkDevice links a device with a group
+func (mem *Store) GroupLinkDevice(orgID, name, clientID string) error {
+	device, err := mem.DeviceGet(clientID)
+	if err != nil {
+		return err
+	}
+
+	group, err := mem.GroupGet(orgID, name)
+	if err != nil {
+		return err
+	}
+
+	mem.lock.Lock()
+	defer mem.lock.Unlock()
+
+	for _, l := range mem.GroupLinks {
+		if l.GroupID == group.ID && l.ID == device.ID {
+			// Link already exists, so no more work needed
+			return nil
+		}
+	}
+
+	link := datastore.GroupDeviceLink{
+		ID:             int64(len(mem.GroupLinks) + 1),
+		OrganisationID: orgID,
+		GroupID:        group.ID,
+		DeviceID:       device.ID,
+	}
+	mem.GroupLinks = append(mem.GroupLinks, link)
+	return nil
+}
+
+// GroupUnlinkDevice unlinks a device from a group
+func (mem *Store) GroupUnlinkDevice(orgID, name, clientID string) error {
+	device, err := mem.DeviceGet(clientID)
+	if err != nil {
+		return err
+	}
+
+	group, err := mem.GroupGet(orgID, name)
+	if err != nil {
+		return err
+	}
+
+	mem.lock.Lock()
+	defer mem.lock.Unlock()
+
+	links := []datastore.GroupDeviceLink{}
+	for _, l := range mem.GroupLinks {
+		if l.GroupID != group.ID || l.DeviceID != device.ID {
+			links = append(links, l)
+		}
+	}
+
+	mem.GroupLinks = links
+	return nil
+}
+
+// GroupGetDevices fetches the devices for a group
+func (mem *Store) GroupGetDevices(orgID, name string) ([]datastore.Device, error) {
+	group, err := mem.GroupGet(orgID, name)
+	if err != nil {
+		return nil, err
+	}
+
+	mem.lock.RLock()
+	defer mem.lock.RUnlock()
+
+	devices := []datastore.Device{}
+
+	for _, l := range mem.GroupLinks {
+		if l.GroupID != group.ID {
+			continue
+		}
+
+		d, err := mem.deviceGetByID(l.DeviceID)
+		if err != nil {
+			return nil, err
+		}
+		devices = append(devices, d)
+	}
+	return devices, nil
 }

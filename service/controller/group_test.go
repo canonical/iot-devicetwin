@@ -74,3 +74,106 @@ func TestService_GroupList(t *testing.T) {
 		})
 	}
 }
+
+func TestService_GroupGet(t *testing.T) {
+	type args struct {
+		orgID string
+		name  string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"valid", args{"abc", "workshop"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := NewService(settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{})
+			got, err := srv.GroupGet(tt.args.orgID, tt.args.name)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Service.GroupGet() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr {
+				if got.Name != tt.args.name {
+					t.Errorf("Service.GroupGet() name = %v, wantErr %v", got.Name, tt.args.name)
+				}
+			}
+		})
+	}
+}
+
+func TestService_GroupLinkDevice(t *testing.T) {
+	type args struct {
+		orgID    string
+		name     string
+		clientID string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"valid", args{"abc", "workshop", "c333"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := NewService(settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{})
+			if err := srv.GroupLinkDevice(tt.args.orgID, tt.args.name, tt.args.clientID); (err != nil) != tt.wantErr {
+				t.Errorf("Service.GroupLinkDevice() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestService_GroupUnlinkDevice(t *testing.T) {
+	type args struct {
+		orgID    string
+		name     string
+		clientID string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"valid", args{"abc", "workshop", "c333"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := NewService(settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{})
+			if err := srv.GroupUnlinkDevice(tt.args.orgID, tt.args.name, tt.args.clientID); (err != nil) != tt.wantErr {
+				t.Errorf("Service.GroupUnlinkDevice() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestService_GroupGetDevices(t *testing.T) {
+	type args struct {
+		orgID string
+		name  string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{"valid", args{"abc", "workshop"}, 1, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := NewService(settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{})
+			got, err := srv.GroupGetDevices(tt.args.orgID, tt.args.name)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Service.GroupGetDevices() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if len(got) != tt.want {
+				t.Errorf("Service.GroupGetDevices() = %v, want %v", len(got), tt.want)
+			}
+		})
+	}
+}

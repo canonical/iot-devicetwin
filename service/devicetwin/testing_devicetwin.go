@@ -121,3 +121,45 @@ func (twin *MockDeviceTwin) GroupList(orgID string) ([]domain.Group, error) {
 		{OrganizationID: "abc", Name: "workshop"},
 	}, nil
 }
+
+// GroupGet mocks fetching a group
+func (twin *MockDeviceTwin) GroupGet(orgID, name string) (domain.Group, error) {
+	if orgID == "invalid" || name == "invalid" {
+		return domain.Group{}, fmt.Errorf("MOCK error group device unlink")
+	}
+	return domain.Group{
+		OrganizationID: "abc", Name: "workshop",
+	}, nil
+}
+
+// GroupLinkDevice mocks linking a device to a group
+func (twin *MockDeviceTwin) GroupLinkDevice(orgID, name, clientID string) error {
+	if orgID == "invalid" || name == "invalid" || clientID == "invalid" {
+		return fmt.Errorf("MOCK error group device link")
+	}
+	return nil
+}
+
+// GroupUnlinkDevice mocks unlinking a device from a group
+func (twin *MockDeviceTwin) GroupUnlinkDevice(orgID, name, clientID string) error {
+	if orgID == "invalid" || name == "invalid" || clientID == "invalid" {
+		return fmt.Errorf("MOCK error group device unlink")
+	}
+	return nil
+}
+
+// GroupGetDevices mocks retrieving the devices for a group
+func (twin *MockDeviceTwin) GroupGetDevices(orgID, name string) ([]domain.Device, error) {
+	if orgID == "invalid" || name == "invalid" {
+		return nil, fmt.Errorf("MOCK error group device unlink")
+	}
+	return []domain.Device{
+		{OrganizationID: "abc",
+			DeviceID:     "c333",
+			Brand:        "canonical",
+			Model:        "ubuntu-core-18-amd64",
+			SerialNumber: "d75f7300-abbf-4c11-bf0a-8b7103038490",
+			DeviceKey:    "CCCCCCCCC",
+		},
+	}, nil
+}

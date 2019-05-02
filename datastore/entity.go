@@ -87,3 +87,12 @@ type Group struct {
 	OrganisationID string
 	Name           string
 }
+
+// GroupDeviceLink is the record for linking devices to groups
+type GroupDeviceLink struct {
+	ID             int64
+	Created        time.Time
+	OrganisationID string
+	GroupID        int64
+	DeviceID       int64
+}

@@ -91,3 +91,127 @@ func TestService_GroupList(t *testing.T) {
 		})
 	}
 }
+
+func TestService_GroupGet(t *testing.T) {
+	tests := []struct {
+		name   string
+		url    string
+		method string
+		data   io.Reader
+		code   int
+		result string
+	}{
+		{"valid", "/v1/group/abc/workshop", "GET", nil, 200, ""},
+		{"invalid-org", "/v1/group/invalid/workshop", "GET", nil, 400, "GroupGet"},
+		{"invalid-name", "/v1/group/abc/invalid", "GET", nil, 400, "GroupGet"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			wb := NewService(config.TestConfig(), testController())
+			w := sendRequest(tt.method, tt.url, tt.data, wb)
+			if w.Code != tt.code {
+				t.Errorf("Web.GroupGet() got = %v, want %v", w.Code, tt.code)
+			}
+			resp, err := parseStandardResponse(w.Body)
+			if err != nil {
+				t.Errorf("Web.GroupGet() got = %v", err)
+			}
+			if resp.Code != tt.result {
+				t.Errorf("Web.GroupGet() got = %v, want %v", resp.Code, tt.result)
+			}
+		})
+	}
+}
+
+func TestService_GroupLinkDevice(t *testing.T) {
+	tests := []struct {
+		name   string
+		url    string
+		method string
+		data   io.Reader
+		code   int
+		result string
+	}{
+		{"valid", "/v1/group/abc/workshop/c333", "POST", nil, 200, ""},
+		{"invalid-org", "/v1/group/invalid/workshop/c333", "POST", nil, 400, "GroupLink"},
+		{"invalid-name", "/v1/group/abc/invalid/c333", "POST", nil, 400, "GroupLink"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			wb := NewService(config.TestConfig(), testController())
+			w := sendRequest(tt.method, tt.url, tt.data, wb)
+			if w.Code != tt.code {
+				t.Errorf("Web.GroupLinkDevice() got = %v, want %v", w.Code, tt.code)
+			}
+			resp, err := parseStandardResponse(w.Body)
+			if err != nil {
+				t.Errorf("Web.GroupLinkDevice() got = %v", err)
+			}
+			if resp.Code != tt.result {
+				t.Errorf("Web.GroupLinkDevice() got = %v, want %v", resp.Code, tt.result)
+			}
+		})
+	}
+}
+
+func TestService_GroupUnlinkDevice(t *testing.T) {
+	tests := []struct {
+		name   string
+		url    string
+		method string
+		data   io.Reader
+		code   int
+		result string
+	}{
+		{"valid", "/v1/group/abc/workshop/c333", "DELETE", nil, 200, ""},
+		{"invalid-org", "/v1/group/invalid/workshop/c333", "DELETE", nil, 400, "GroupUnlink"},
+		{"invalid-name", "/v1/group/abc/invalid/c333", "DELETE", nil, 400, "GroupUnlink"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			wb := NewService(config.TestConfig(), testController())
+			w := sendRequest(tt.method, tt.url, tt.data, wb)
+			if w.Code != tt.code {
+				t.Errorf("Web.GroupUnlinkDevice() got = %v, want %v", w.Code, tt.code)
+			}
+			resp, err := parseStandardResponse(w.Body)
+			if err != nil {
+				t.Errorf("Web.GroupUnlinkDevice() got = %v", err)
+			}
+			if resp.Code != tt.result {
+				t.Errorf("Web.GroupUnlinkDevice() got = %v, want %v", resp.Code, tt.result)
+			}
+		})
+	}
+}
+
+func TestService_GroupGetDevices(t *testing.T) {
+	tests := []struct {
+		name   string
+		url    string
+		method string
+		data   io.Reader
+		code   int
+		result string
+	}{
+		{"valid", "/v1/group/abc/workshop/devices", "GET", nil, 200, ""},
+		{"invalid-org", "/v1/group/invalid/workshop/devices", "GET", nil, 400, "GroupDevices"},
+		{"invalid-name", "/v1/group/abc/invalid/devices", "GET", nil, 400, "GroupDevices"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			wb := NewService(config.TestConfig(), testController())
+			w := sendRequest(tt.method, tt.url, tt.data, wb)
+			if w.Code != tt.code {
+				t.Errorf("Web.GroupGetDevices() got = %v, want %v", w.Code, tt.code)
+			}
+			resp, err := parseStandardResponse(w.Body)
+			if err != nil {
+				t.Errorf("Web.GroupGetDevices() got = %v", err)
+			}
+			if resp.Code != tt.result {
+				t.Errorf("Web.GroupGetDevices() got = %v, want %v", resp.Code, tt.result)
+			}
+		})
+	}
+}

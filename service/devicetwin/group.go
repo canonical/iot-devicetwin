@@ -43,3 +43,40 @@ func (srv *Service) GroupList(orgID string) ([]domain.Group, error) {
 	}
 	return groups, nil
 }
+
+// GroupGet retrieves a device group
+func (srv *Service) GroupGet(orgID, name string) (domain.Group, error) {
+	g, err := srv.DB.GroupGet(orgID, name)
+	if err != nil {
+		return domain.Group{}, err
+	}
+
+	return domain.Group{
+		OrganizationID: g.OrganisationID,
+		Name:           g.Name,
+	}, nil
+}
+
+// GroupLinkDevice links a device to a group
+func (srv *Service) GroupLinkDevice(orgID, name, clientID string) error {
+	return srv.DB.GroupLinkDevice(orgID, name, clientID)
+}
+
+// GroupUnlinkDevice unlinks a device from a group
+func (srv *Service) GroupUnlinkDevice(orgID, name, clientID string) error {
+	return srv.DB.GroupUnlinkDevice(orgID, name, clientID)
+}
+
+// GroupGetDevices retrieves the devices from a group
+func (srv *Service) GroupGetDevices(orgID, name string) ([]domain.Device, error) {
+	dd, err := srv.DB.GroupGetDevices(orgID, name)
+	if err != nil {
+		return nil, err
+	}
+
+	devices := []domain.Device{}
+	for _, d := range dd {
+		devices = append(devices, dataToDomainDevice(d))
+	}
+	return devices, nil
+}
