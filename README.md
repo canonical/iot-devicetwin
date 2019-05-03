@@ -14,8 +14,8 @@ The device twin record holds:
  - Details about the device's state
  - Details about the device's desired state
  
- The service provides a cache so the devices can be monitored by the IoT Management 
- Service, and relays actions to the device e.g. to install a new application.
+ The service provides a cache so the devices can be monitored by the [IoT Management](https://github.com/CanonicalLtd/iot-management) 
+ Service, and relays actions to the device [IoT agent](https://github.com/CanonicalLtd/iot-agent) e.g. to install a new application.
  
  ## Design
  ![IoT Management Solution Overview](docs/IoTManagement.svg)

@@ -53,15 +53,7 @@ type PublishDevice struct {
 	Action  string `json:"action"`
 	Success bool   `json:"success"`
 	Message string `json:"message"`
-	Result  struct {
-		OrganizationID string `json:"orgId"`
-		DeviceID       string `json:"deviceId"`
-		Brand          string `json:"brand"`
-		Model          string `json:"model"`
-		SerialNumber   string `json:"serial"`
-		StoreID        string `json:"store"`
-		DeviceKey      string `json:"deviceKey"`
-	} `json:"result"`
+	Result  Device `json:"result"`
 }
 
 // PublishSnaps is the published message showing the result of a list snaps action

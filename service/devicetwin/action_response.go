@@ -52,7 +52,26 @@ func (srv *Service) actionDevice(payload []byte) error {
 		DeviceKey:      d.Result.DeviceKey,
 		StoreID:        d.Result.StoreID,
 	}
-	_, err = srv.DB.DeviceCreate(device)
+	deviceID, err := srv.DB.DeviceCreate(device)
+	if err != nil {
+		return fmt.Errorf("error in device action: %v", err)
+	}
+	if d.Result.Version.DeviceID == "" {
+		// No device version information
+		return nil
+	}
+
+	// Create or update the device version record
+	version := datastore.DeviceVersion{
+		DeviceID:      deviceID,
+		Version:       d.Result.Version.Version,
+		Series:        d.Result.Version.Series,
+		OSID:          d.Result.Version.OSID,
+		OSVersionID:   d.Result.Version.OSVersionID,
+		OnClassic:     d.Result.Version.OnClassic,
+		KernelVersion: d.Result.Version.KernelVersion,
+	}
+	err = srv.DB.DeviceVersionUpsert(version)
 	return err
 }
 

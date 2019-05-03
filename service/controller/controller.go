@@ -156,6 +156,14 @@ func (srv *Service) HealthHandler(client MQTT.Client, msg MQTT.Message) {
 	if err := srv.triggerActionOnDevice(h.OrganizationID, h.DeviceID, act); err != nil {
 		log.Printf("Triggering action: %v", err)
 	}
+
+	// Get the snaps from the device
+	act = domain.SubscribeAction{
+		Action: "list",
+	}
+	if err := srv.triggerActionOnDevice(h.OrganizationID, h.DeviceID, act); err != nil {
+		log.Printf("Triggering action: %v", err)
+	}
 }
 
 // getClientID sets the client ID from the topic

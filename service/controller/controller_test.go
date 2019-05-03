@@ -106,7 +106,7 @@ func TestService_HealthHandler(t *testing.T) {
 		{"valid", fields{settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{}}, args{&mqtt.MockClient{}, &mqtt.MockMessage{Message: m1}}, 0},
 		{"invalid-message", fields{settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{}}, args{&mqtt.MockClient{}, &mqtt.MockMessage{}}, 0},
 		{"invalid-clientID", fields{settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{}}, args{&mqtt.MockClient{}, &mqtt.MockMessage{Message: m2}}, 0},
-		{"new-clientID", fields{settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{}}, args{&mqtt.MockClient{}, &mqtt.MockMessage{Message: m3, TopicPath: "device/health/new-device"}}, 1},
+		{"new-clientID", fields{settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{}}, args{&mqtt.MockClient{}, &mqtt.MockMessage{Message: m3, TopicPath: "device/health/new-device"}}, 2},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

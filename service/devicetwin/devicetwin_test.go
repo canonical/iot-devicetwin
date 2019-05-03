@@ -54,6 +54,7 @@ func TestService_HealthHandler(t *testing.T) {
 func TestService_ActionResponse(t *testing.T) {
 	p1 := []byte("")
 	p2 := []byte(`{"id":"a1", "action":"device", "success":true, "message":"", "result": {"orgId":"abc", "deviceId":"d444", "brand":"example", "model":"drone-1000", "serial":"d444"}}`)
+	p2a := []byte(`{"id":"a1", "action":"device", "success":true, "message":"", "result": {"orgId":"abc", "deviceId":"d444", "brand":"example", "model":"drone-1000", "serial":"d444", "version":{"deviceId":"d444", "version":"1.0"}}}`)
 	p3 := []byte(`{"id":"a1", "action":"device", "success":true, "message":"", "result": {"orgId":"abc", "deviceId":"a111", "brand":"example", "model":"drone-1000", "serial":"d444"}}`)
 	p4 := []byte(`{"id":"a1", "action":"list", "success":true, "message":"", "result": [{"name":"abc", "status":"active", "version":"1.0"}, {"name":"alpaca", "status":"active", "version":"2.3"}]}`)
 	p5 := []byte(`{"id":"a1", "action":"install", "success":true, "message":"", "result": "101"}`)
@@ -73,6 +74,7 @@ func TestService_ActionResponse(t *testing.T) {
 		{"empty-payload", args{"", "device", p1}, true},
 		{"valid-device", args{"d444", "device", p2}, false},
 		{"invalid-action", args{"d444", "invalid", p2}, true},
+		{"valid-device-version", args{"d444", "device", p2a}, false},
 		{"device-exists", args{"a111", "device", p3}, true},
 
 		{"valid-list", args{"a111", "list", p4}, false},
