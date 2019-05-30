@@ -45,7 +45,7 @@ const (
 	prefix            = "devicetwin"
 )
 
-var drivers = []string{"memory"}
+var drivers = []string{"memory", "postgres"}
 
 // MQTTConnect holds the credentials for MQTT connection
 type MQTTConnect struct {
@@ -145,7 +145,7 @@ func readCerts(configDir string) (MQTTConnect, error) {
 		return c, err
 	}
 
-	cert, err := ioutil.ReadFile(path.Join(configDir, clientCert))
+	certFile, err := ioutil.ReadFile(path.Join(configDir, clientCert))
 	if err != nil {
 		return c, err
 	}
@@ -154,7 +154,7 @@ func readCerts(configDir string) (MQTTConnect, error) {
 
 	c.RootCA = rootCA
 	c.ClientKey = key
-	c.ClientCert = cert
+	c.ClientCert = certFile
 	c.ClientID = generateClientID()
 
 	return c, err

@@ -17,33 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package factory
 
 import (
+	"fmt"
 	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/service/controller"
-	"github.com/CanonicalLtd/iot-devicetwin/service/devicetwin"
-	"github.com/CanonicalLtd/iot-devicetwin/service/factory"
-	"github.com/CanonicalLtd/iot-devicetwin/service/mqtt"
-	"github.com/CanonicalLtd/iot-devicetwin/web"
-	"log"
+	"github.com/CanonicalLtd/iot-devicetwin/datastore"
+	"github.com/CanonicalLtd/iot-devicetwin/datastore/memory"
+	"github.com/CanonicalLtd/iot-devicetwin/datastore/postgres"
 )
 
-func main() {
-	// Set up the dependency chain
-	settings := config.ParseArgs()
-	db, err := factory.CreateDataStore(settings)
-	if err != nil {
-		log.Fatalf("Error connecting to data store: %v", err)
+// CreateDataStore is the factory method to create a data store
+func CreateDataStore(settings *config.Settings) (datastore.DataStore, error) {
+	var db datastore.DataStore
+	switch settings.Driver {
+	case "memory":
+		db = memory.NewStore()
+	case "postgres":
+		db = postgres.OpenDataStore(settings.Driver, settings.DataSource)
+	default:
+		return nil, fmt.Errorf("unknown data store driver: %v", settings.Driver)
 	}
-	m, err := mqtt.GetConnection(settings)
-	if err != nil {
-		log.Fatalf("Error connecting to MQTT broker: %v", err)
-	}
-	twin := devicetwin.NewService(settings, db)
-	ctrl := controller.NewService(settings, m, twin)
 
-	// Start the web API service
-	w := web.NewService(settings, ctrl)
-	log.Fatal(w.Run())
+	return db, nil
 }

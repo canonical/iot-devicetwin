@@ -62,3 +62,25 @@ func (db *DataStore) DevicePing(deviceID string, refresh time.Time) error {
 
 	return err
 }
+
+// DeviceList fetches the devices for an organization from the database
+func (db *DataStore) DeviceList(orgID string) ([]datastore.Device, error) {
+	rows, err := db.Query(listDeviceSQL, orgID)
+	if err != nil {
+		log.Printf("Error retrieving devices: %v\n", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	devices := []datastore.Device{}
+	for rows.Next() {
+		item := datastore.Device{}
+		err := rows.Scan(&item.ID, &item.Created, &item.LastRefresh, &item.OrganisationID, &item.DeviceID, &item.Brand, &item.Model, &item.SerialNumber, &item.StoreID, &item.DeviceKey, &item.Active)
+		if err != nil {
+			return nil, err
+		}
+		devices = append(devices, item)
+	}
+
+	return devices, nil
+}

@@ -44,6 +44,12 @@ select id, created, lastrefresh, org_id, device_id, brand, model, serial, store_
 from device
 where device_id=$1`
 
+const listDeviceSQL = `
+select id, created, lastrefresh, org_id, device_id, brand, model, serial, store_id, device_key, active
+from device
+where org_id=$1
+order by brand, model, serial`
+
 const pingDeviceSQL = `
 update device
 set lastrefresh=$2

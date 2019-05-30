@@ -36,7 +36,7 @@ type DataStore interface {
 
 	ActionCreate(act Action) (int64, error)
 	ActionUpdate(actionID, status, message string) error
-	ActionListForDevice(clientID string) ([]Action, error)
+	ActionListForDevice(deviceID string) ([]Action, error)
 
 	DeviceVersionGet(deviceID int64) (DeviceVersion, error)
 	DeviceVersionUpsert(dv DeviceVersion) error
@@ -45,7 +45,7 @@ type DataStore interface {
 	GroupCreate(orgID, name string) (int64, error)
 	GroupList(orgID string) ([]Group, error)
 	GroupGet(orgID, name string) (Group, error)
-	GroupLinkDevice(orgID, name, clientID string) error
-	GroupUnlinkDevice(orgID, name, clientID string) error
+	GroupLinkDevice(orgID, name, deviceID string) error
+	GroupUnlinkDevice(orgID, name, deviceID string) error
 	GroupGetDevices(orgID, name string) ([]Device, error)
 }

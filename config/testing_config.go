@@ -93,6 +93,7 @@ Qmery+icg5rZtFUNYs0WDeeYRVic+fwpBXCjrSpG3KglcceN6uOZVFI=
 // TestConfig creates config settings for testing
 func TestConfig() *Settings {
 	return &Settings{
+		Driver: DefaultDriver,
 		MQTTConnect: MQTTConnect{
 			ClientID:   "aaa",
 			RootCA:     []byte(testCA),

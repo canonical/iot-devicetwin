@@ -17,33 +17,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package factory
 
 import (
+	"testing"
+
 	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/service/controller"
-	"github.com/CanonicalLtd/iot-devicetwin/service/devicetwin"
-	"github.com/CanonicalLtd/iot-devicetwin/service/factory"
-	"github.com/CanonicalLtd/iot-devicetwin/service/mqtt"
-	"github.com/CanonicalLtd/iot-devicetwin/web"
-	"log"
 )
 
-func main() {
-	// Set up the dependency chain
-	settings := config.ParseArgs()
-	db, err := factory.CreateDataStore(settings)
-	if err != nil {
-		log.Fatalf("Error connecting to data store: %v", err)
+func TestCreateDataStore(t *testing.T) {
+	tests := []struct {
+		name    string
+		driver  string
+		wantErr bool
+	}{
+		{"valid", "memory", false},
+		{"invalid", "invalid", true},
 	}
-	m, err := mqtt.GetConnection(settings)
-	if err != nil {
-		log.Fatalf("Error connecting to MQTT broker: %v", err)
-	}
-	twin := devicetwin.NewService(settings, db)
-	ctrl := controller.NewService(settings, m, twin)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			settings := config.TestConfig()
+			settings.Driver = tt.driver
 
-	// Start the web API service
-	w := web.NewService(settings, ctrl)
-	log.Fatal(w.Run())
+			_, err := CreateDataStore(settings)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CreateDataStore() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
 }
