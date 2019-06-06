@@ -148,27 +148,24 @@ func TestService_DeviceSnapConf(t *testing.T) {
 	}
 }
 
-//func TestService_deviceSnapAction(t *testing.T) {
-//	a1 := domain.SubscribeAction{}
-//	type args struct {
-//		orgID    string
-//		clientID string
-//		snap     string
-//		action   domain.SubscribeAction
-//	}
-//	tests := []struct {
-//		name    string
-//		args    args
-//		wantErr bool
-//	}{
-//		{"valid", args{"abc", "a111", "helloworld", a1}, false},
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			srv := NewService(settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{})
-//			if err := srv.deviceSnapAction(tt.args.orgID, tt.args.clientID, tt.args.snap, tt.args.action); (err != nil) != tt.wantErr {
-//				t.Errorf("Service.deviceSnapAction() error = %v, wantErr %v", err, tt.wantErr)
-//			}
-//		})
-//	}
-//}
+func TestService_DeviceSnapList(t *testing.T) {
+	type args struct {
+		orgID    string
+		clientID string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"valid", args{"abc", "a111"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := NewService(settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{})
+			if err := srv.DeviceSnapList(tt.args.orgID, tt.args.clientID); (err != nil) != tt.wantErr {
+				t.Errorf("Service.DeviceSnapList() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

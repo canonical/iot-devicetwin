@@ -50,6 +50,7 @@ type Controller interface {
 	GroupGetDevices(orgID, name string) ([]domain.Device, error)
 
 	// Actions on a device
+	DeviceSnapList(orgID, clientID string) error
 	DeviceSnapInstall(orgID, clientID, snap string) error
 	DeviceSnapRemove(orgID, clientID, snap string) error
 	DeviceSnapUpdate(orgID, clientID, snap, action string) error
@@ -176,7 +177,7 @@ func getClientID(msg MQTT.Message) string {
 	return parts[2]
 }
 
-// TriggerActionOnDevice triggers an action on the device via MQTT
+// triggerActionOnDevice triggers an action on the device via MQTT
 func (srv *Service) triggerActionOnDevice(orgID, deviceID string, act domain.SubscribeAction) error {
 	// Generate a request ID
 	id := ksuid.New()

@@ -29,13 +29,21 @@ func (srv *Service) DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, er
 	return srv.DeviceTwin.DeviceSnaps(orgID, clientID)
 }
 
+// DeviceSnapList triggers listing snaps on a device
+func (srv *Service) DeviceSnapList(orgID, clientID string) error {
+	act := domain.SubscribeAction{
+		Action: "list",
+	}
+	return srv.deviceSnapAction(orgID, clientID, act)
+}
+
 // DeviceSnapInstall triggers installing a snap on a device
 func (srv *Service) DeviceSnapInstall(orgID, clientID, snap string) error {
 	act := domain.SubscribeAction{
 		Action: "install",
 		Snap:   snap,
 	}
-	return srv.deviceSnapAction(orgID, clientID, snap, act)
+	return srv.deviceSnapAction(orgID, clientID, act)
 }
 
 // DeviceSnapRemove triggers uninstalling a snap on a device
@@ -44,7 +52,7 @@ func (srv *Service) DeviceSnapRemove(orgID, clientID, snap string) error {
 		Action: "remove",
 		Snap:   snap,
 	}
-	return srv.deviceSnapAction(orgID, clientID, snap, act)
+	return srv.deviceSnapAction(orgID, clientID, act)
 }
 
 // DeviceSnapUpdate triggers a snap update on a device
@@ -55,7 +63,7 @@ func (srv *Service) DeviceSnapUpdate(orgID, clientID, snap, action string) error
 			Action: action,
 			Snap:   snap,
 		}
-		return srv.deviceSnapAction(orgID, clientID, snap, act)
+		return srv.deviceSnapAction(orgID, clientID, act)
 	default:
 		return fmt.Errorf("invalid update action `%s`", action)
 	}
@@ -69,11 +77,11 @@ func (srv *Service) DeviceSnapConf(orgID, clientID, snap, settings string) error
 		Snap:   snap,
 		Data:   settings,
 	}
-	return srv.deviceSnapAction(orgID, clientID, snap, act)
+	return srv.deviceSnapAction(orgID, clientID, act)
 }
 
 // deviceSnapAction triggers a snap action on a device
-func (srv *Service) deviceSnapAction(orgID, clientID, snap string, action domain.SubscribeAction) error {
+func (srv *Service) deviceSnapAction(orgID, clientID string, action domain.SubscribeAction) error {
 	// Validate the org and device ID
 	device, err := srv.DeviceTwin.DeviceGet(orgID, clientID)
 	if err != nil {

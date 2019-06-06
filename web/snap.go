@@ -40,6 +40,19 @@ func (wb Service) SnapList(w http.ResponseWriter, r *http.Request) {
 	formatSnapsResponse(installed, w)
 }
 
+// SnapListPublish is the API call to trigger a snap list on a device
+func (wb Service) SnapListPublish(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	if err := wb.Controller.DeviceSnapList(vars["orgid"], vars["id"]); err != nil {
+		log.Println("Error requesting snap list for the device:", err)
+		formatStandardResponse("SnapList", "Error requesting snap list for the device", w)
+		return
+	}
+
+	formatStandardResponse("", "", w)
+}
+
 // SnapInstall is the API call to install a snap for a device
 func (wb Service) SnapInstall(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
