@@ -82,5 +82,6 @@ func dataToDomainDevice(d datastore.Device) domain.Device {
 		StoreID:        d.StoreID,
 		DeviceKey:      d.DeviceKey,
 		Version:        domain.DeviceVersion{},
+		LastRefresh:    d.LastRefresh,
 	}
 }

@@ -67,4 +67,8 @@ func openDatabase(driver, dataSource string) *DataStore {
 
 func (db *DataStore) createTables() {
 	_ = db.createDeviceTable()
+	_ = db.createActionTable()
+	_ = db.createDeviceSnapTable()
+	_ = db.createDeviceVersionTable()
+	_ = db.createOrgGroupTable()
 }

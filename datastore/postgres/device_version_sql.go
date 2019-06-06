@@ -22,7 +22,7 @@ package postgres
 const createDeviceVersionTableSQL = `
 CREATE TABLE IF NOT EXISTS device_version (
    id             serial primary key,
-   device_id      int references device not null,
+   device_id      int references device not null unique,
    version        varchar(200) not null,
    series         varchar(200) default '',
    os_id          varchar(200) default '',

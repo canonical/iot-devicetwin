@@ -38,4 +38,5 @@ type Device struct {
 	StoreID        string        `json:"store"`
 	DeviceKey      string        `json:"deviceKey"`
 	Version        DeviceVersion `json:"version"`
+	LastRefresh    time.Time     `json:"lastRefresh"`
 }

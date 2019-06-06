@@ -38,12 +38,12 @@ CREATE TABLE IF NOT EXISTS device_snap (
 )
 `
 
-const createDeviceSnapIndexSQL = "CREATE INDEX IF NOT EXISTS device_snap_idx ON device_snap (device_id, name)"
+const createDeviceSnapIndexSQL = "CREATE UNIQUE INDEX IF NOT EXISTS device_snap_idx ON device_snap (device_id, name)"
 
 const upsertDeviceSnapSQL = `
 INSERT INTO device_snap(device_id, name, installed_size, installed_date, status, channel, confinement, version, revision, devmode, config)
 VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-ON CONFLICT (device_snap_idx)
+ON CONFLICT (device_id, name)
 DO
   UPDATE
   SET installed_size = EXCLUDED.installed_size, 
