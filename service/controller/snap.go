@@ -22,6 +22,7 @@ package controller
 import (
 	"fmt"
 	"github.com/CanonicalLtd/iot-devicetwin/domain"
+	"time"
 )
 
 // DeviceSnaps gets the device's snaps from the database cache
@@ -88,6 +89,18 @@ func (srv *Service) deviceSnapAction(orgID, clientID string, action domain.Subsc
 		return err
 	}
 
-	// Trigger the install action on the device
-	return srv.triggerActionOnDevice(device.OrganizationID, device.DeviceID, action)
+	// Trigger the action on the device
+	err = srv.triggerActionOnDevice(device.OrganizationID, device.DeviceID, action)
+	if err != nil {
+		return err
+	}
+
+	// State of the snaps has changed, so request a snap list
+	if action.Action != "list" {
+		// Request the list action after a few seconds
+		time.AfterFunc(10*time.Second, func() {
+			_ = srv.DeviceSnapList(orgID, clientID)
+		})
+	}
+	return err
 }

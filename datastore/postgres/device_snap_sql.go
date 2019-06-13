@@ -66,4 +66,4 @@ where device_id=$1
 order by name`
 
 const deleteDeviceSnapSQL = `
-delete from device_snap where id=$1`
+delete from device_snap where device_id=$1`
