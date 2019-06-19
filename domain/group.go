@@ -21,6 +21,6 @@ package domain
 
 // Group is the definition of a group of devices
 type Group struct {
-	OrganizationID string
-	Name           string
+	OrganizationID string `json:"orgid"`
+	Name           string `json:"name"`
 }
