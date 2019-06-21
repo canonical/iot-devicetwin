@@ -51,6 +51,7 @@ func (wb Service) Router() *mux.Router {
 	router.Handle("/v1/group/{orgid}/{name}/{id}", Middleware(http.HandlerFunc(wb.GroupLinkDevice))).Methods("POST")
 	router.Handle("/v1/group/{orgid}/{name}/{id}", Middleware(http.HandlerFunc(wb.GroupUnlinkDevice))).Methods("DELETE")
 	router.Handle("/v1/group/{orgid}/{name}/devices", Middleware(http.HandlerFunc(wb.GroupGetDevices))).Methods("GET")
+	router.Handle("/v1/group/{orgid}/{name}/devices/excluded", Middleware(http.HandlerFunc(wb.GroupGetExcludedDevices))).Methods("GET")
 
 	return router
 }

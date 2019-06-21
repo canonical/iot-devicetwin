@@ -118,6 +118,20 @@ func (wb Service) GroupGetDevices(w http.ResponseWriter, r *http.Request) {
 	formatDevicesResponse(devices, w)
 }
 
+// GroupGetExcludedDevices is the API call to get the devices not in a group
+func (wb Service) GroupGetExcludedDevices(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	devices, err := wb.Controller.GroupGetExcludedDevices(vars["orgid"], vars["name"])
+	if err != nil {
+		log.Printf("Error fetching the devices for group `%s`: %v", vars["name"], err)
+		formatStandardResponse("GroupDevices", "Error fetching the devices not in a group", w)
+		return
+	}
+
+	formatDevicesResponse(devices, w)
+}
+
 func parseGroupRequest(r io.Reader) (domain.Group, error) {
 	result := domain.Group{}
 	err := json.NewDecoder(r).Decode(&result)

@@ -440,3 +440,29 @@ func (mem *Store) GroupGetDevices(orgID, name string) ([]datastore.Device, error
 	}
 	return devices, nil
 }
+
+// GroupGetExcludedDevices fetches the devices not in a group
+func (mem *Store) GroupGetExcludedDevices(orgID, name string) ([]datastore.Device, error) {
+	devicesInGroup, err := mem.GroupGetDevices(orgID, name)
+	if err != nil {
+		return nil, err
+	}
+	devices := []datastore.Device{}
+
+	mem.lock.RLock()
+	defer mem.lock.RUnlock()
+
+	for _, l := range mem.Devices {
+		found := false
+		for _, d := range devicesInGroup {
+			if l.ID == d.ID {
+				found = true
+				break
+			}
+		}
+		if !found {
+			devices = append(devices, l)
+		}
+	}
+	return devices, nil
+}

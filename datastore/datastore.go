@@ -48,4 +48,5 @@ type DataStore interface {
 	GroupLinkDevice(orgID, name, deviceID string) error
 	GroupUnlinkDevice(orgID, name, deviceID string) error
 	GroupGetDevices(orgID, name string) ([]Device, error)
+	GroupGetExcludedDevices(orgID, name string) ([]Device, error)
 }

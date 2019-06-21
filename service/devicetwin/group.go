@@ -80,3 +80,17 @@ func (srv *Service) GroupGetDevices(orgID, name string) ([]domain.Device, error)
 	}
 	return devices, nil
 }
+
+// GroupGetExcludedDevices retrieves the devices not in a group
+func (srv *Service) GroupGetExcludedDevices(orgID, name string) ([]domain.Device, error) {
+	dd, err := srv.DB.GroupGetExcludedDevices(orgID, name)
+	if err != nil {
+		return nil, err
+	}
+
+	devices := []domain.Device{}
+	for _, d := range dd {
+		devices = append(devices, dataToDomainDevice(d))
+	}
+	return devices, nil
+}

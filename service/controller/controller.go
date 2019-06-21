@@ -48,6 +48,7 @@ type Controller interface {
 	GroupLinkDevice(orgID, name, clientID string) error
 	GroupUnlinkDevice(orgID, name, clientID string) error
 	GroupGetDevices(orgID, name string) ([]domain.Device, error)
+	GroupGetExcludedDevices(orgID, name string) ([]domain.Device, error)
 
 	// Actions on a device
 	DeviceSnapList(orgID, clientID string) error

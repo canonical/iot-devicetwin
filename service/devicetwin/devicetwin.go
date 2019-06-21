@@ -47,6 +47,7 @@ type DeviceTwin interface {
 	GroupLinkDevice(orgID, name, clientID string) error
 	GroupUnlinkDevice(orgID, name, clientID string) error
 	GroupGetDevices(orgID, name string) ([]domain.Device, error)
+	GroupGetExcludedDevices(orgID, name string) ([]domain.Device, error)
 }
 
 // Service implementation of the identity use cases

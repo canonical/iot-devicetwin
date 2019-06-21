@@ -25,15 +25,7 @@ import (
 	"net/http"
 
 	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/gorilla/mux"
 )
-
-// Web is the interface for the web API
-type Web interface {
-	Run() error
-	Router() *mux.Router
-	SnapList(w http.ResponseWriter, r *http.Request)
-}
 
 // Service is the implementation of the web API
 type Service struct {

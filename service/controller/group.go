@@ -50,3 +50,8 @@ func (srv *Service) GroupUnlinkDevice(orgID, name, clientID string) error {
 func (srv *Service) GroupGetDevices(orgID, name string) ([]domain.Device, error) {
 	return srv.DeviceTwin.GroupGetDevices(orgID, name)
 }
+
+// GroupGetExcludedDevices retrieves the devices not in a group
+func (srv *Service) GroupGetExcludedDevices(orgID, name string) ([]domain.Device, error) {
+	return srv.DeviceTwin.GroupGetExcludedDevices(orgID, name)
+}

@@ -177,3 +177,31 @@ func TestService_GroupGetDevices(t *testing.T) {
 		})
 	}
 }
+
+func TestService_GroupGetExcludedDevices(t *testing.T) {
+	type args struct {
+		orgID string
+		name  string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{"valid", args{"abc", "workshop"}, 2, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := NewService(settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{})
+			got, err := srv.GroupGetExcludedDevices(tt.args.orgID, tt.args.name)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Service.GroupGetExcludedDevices() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if len(got) != tt.want {
+				t.Errorf("Service.GroupGetExcludedDevices() = %v, want %v", len(got), tt.want)
+			}
+		})
+	}
+}

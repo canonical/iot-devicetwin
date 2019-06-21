@@ -151,3 +151,32 @@ func (db *DataStore) GroupGetDevices(orgID, name string) ([]datastore.Device, er
 
 	return devices, nil
 }
+
+// GroupGetExcludedDevices retrieves the devices not in a group
+func (db *DataStore) GroupGetExcludedDevices(orgID, name string) ([]datastore.Device, error) {
+	// Get the group record
+	grp, err := db.GroupGet(orgID, name)
+	if err != nil {
+		return nil, fmt.Errorf("error finding group: %v", err)
+	}
+
+	// Get the devices for the group
+	rows, err := db.Query(listGroupDeviceExcludedLinkSQL, orgID, grp.ID)
+	if err != nil {
+		log.Printf("Error retrieving devices for group: %v\n", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	devices := []datastore.Device{}
+	for rows.Next() {
+		item := datastore.Device{}
+		err := rows.Scan(&item.ID, &item.Created, &item.LastRefresh, &item.OrganisationID, &item.DeviceID, &item.Brand, &item.Model, &item.SerialNumber, &item.StoreID, &item.DeviceKey, &item.Active)
+		if err != nil {
+			return nil, err
+		}
+		devices = append(devices, item)
+	}
+
+	return devices, nil
+}

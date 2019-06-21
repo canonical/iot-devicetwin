@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS group_device_link (
    created        timestamp default current_timestamp,
    org_id         varchar(200) not null,
    group_id       int references org_group not null,
-   device_id      int references device not null,
+   device_id      int references device not null
 )
 `
 
@@ -67,5 +67,16 @@ select d.id, d.created, d.lastrefresh, d.org_id, d.device_id, d.brand, d.model, 
 from device d
 inner join group_device_link lnk on lnk.device_id=d.id
 where lnk.org_id=$1 and lnk.group_id=$2
+order by d.brand, d.model, d.serial
+`
+
+const listGroupDeviceExcludedLinkSQL = `
+select d.id, d.created, d.lastrefresh, d.org_id, d.device_id, d.brand, d.model, d.serial, d.store_id, d.device_key, d.active
+from device d
+where not exists (
+   select device_id from group_device_link
+   where device_id = d.id
+     and org_id=$1 and group_id=$2
+ )
 order by d.brand, d.model, d.serial
 `

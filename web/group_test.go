@@ -215,3 +215,34 @@ func TestService_GroupGetDevices(t *testing.T) {
 		})
 	}
 }
+
+func TestService_GroupGetExcludedDevices(t *testing.T) {
+	tests := []struct {
+		name   string
+		url    string
+		method string
+		data   io.Reader
+		code   int
+		result string
+	}{
+		{"valid", "/v1/group/abc/workshop/devices/excluded", "GET", nil, 200, ""},
+		{"invalid-org", "/v1/group/invalid/workshop/devices/excluded", "GET", nil, 400, "GroupDevices"},
+		{"invalid-name", "/v1/group/abc/invalid/devices/excluded", "GET", nil, 400, "GroupDevices"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			wb := NewService(config.TestConfig(), testController())
+			w := sendRequest(tt.method, tt.url, tt.data, wb)
+			if w.Code != tt.code {
+				t.Errorf("Web.GroupGetExcludedDevices() got = %v, want %v", w.Code, tt.code)
+			}
+			resp, err := parseStandardResponse(w.Body)
+			if err != nil {
+				t.Errorf("Web.GroupGetExcludedDevices() got = %v", err)
+			}
+			if resp.Code != tt.result {
+				t.Errorf("Web.GroupGetExcludedDevices() got = %v, want %v", resp.Code, tt.result)
+			}
+		})
+	}
+}

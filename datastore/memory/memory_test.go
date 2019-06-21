@@ -401,3 +401,32 @@ func TestStore_GroupDeviceWorkflow(t *testing.T) {
 		})
 	}
 }
+
+func TestStore_GroupGetExcludedDevices(t *testing.T) {
+	type args struct {
+		orgID string
+		name  string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{"valid", args{"abc", "workshop"}, 2, false},
+		{"invalid-not-exists", args{"abc", "does-not-exist"}, 0, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mem := NewStore()
+			got, err := mem.GroupGetExcludedDevices(tt.args.orgID, tt.args.name)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Store.GroupGetExcludedDevices() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if len(got) != tt.want {
+				t.Errorf("Store.GroupGetExcludedDevices() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

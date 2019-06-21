@@ -151,9 +151,32 @@ func (twin *MockDeviceTwin) GroupUnlinkDevice(orgID, name, clientID string) erro
 // GroupGetDevices mocks retrieving the devices for a group
 func (twin *MockDeviceTwin) GroupGetDevices(orgID, name string) ([]domain.Device, error) {
 	if orgID == "invalid" || name == "invalid" {
-		return nil, fmt.Errorf("MOCK error group device unlink")
+		return nil, fmt.Errorf("MOCK error group devices")
 	}
 	return []domain.Device{
+		{OrganizationID: "abc",
+			DeviceID:     "c333",
+			Brand:        "canonical",
+			Model:        "ubuntu-core-18-amd64",
+			SerialNumber: "d75f7300-abbf-4c11-bf0a-8b7103038490",
+			DeviceKey:    "CCCCCCCCC",
+		},
+	}, nil
+}
+
+// GroupGetExcludedDevices mocks retrieving the devices not in a group
+func (twin *MockDeviceTwin) GroupGetExcludedDevices(orgID, name string) ([]domain.Device, error) {
+	if orgID == "invalid" || name == "invalid" {
+		return nil, fmt.Errorf("MOCK error group excluded devices")
+	}
+	return []domain.Device{
+		{OrganizationID: "abc",
+			DeviceID:     "b222",
+			Brand:        "example",
+			Model:        "drone-1000",
+			SerialNumber: "DR1000B222",
+			DeviceKey:    "BBBBBBBBB",
+		},
 		{OrganizationID: "abc",
 			DeviceID:     "c333",
 			Brand:        "canonical",
