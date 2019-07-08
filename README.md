@@ -18,7 +18,7 @@ The device twin record holds:
  Service, and relays actions to the device [IoT agent](https://github.com/CanonicalLtd/iot-agent) e.g. to install a new application.
  
  ## Design
- ![IoT Management Solution Overview](docs/IoTManagement.svg)
+ ![IoT Management Solution Overview](./docs/IoTManagement.svg)
  
  ## Build
  The project uses vendorized dependencies using `govendor`. Development has been done on minimum Go version 1.12.1.
