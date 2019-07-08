@@ -10,10 +10,8 @@ WORKDIR /srv
 RUN apt-get update
 RUN apt-get install -y ca-certificates
 COPY --from=builder1 /go/bin/devicetwin /srv/devicetwin
-RUN mkdir -p /srv/certs
 
-# TODO: need the certs from k8s config
-COPY --from=builder1 /go/src/github.com/CanonicalLtd/iot-devicetwin/certs/* /srv/certs/
+# Note: /srv/certs is handled by the k8s file
 
 # Set params from the environment variables
 ARG DRIVER="postgres"

@@ -37,6 +37,7 @@ const (
 	DefaultDataSource = ""
 	DefaultMQTTURL    = "mqtt.example.com"
 	DefaultMQTTPort   = "8883"
+	DefaultCertsPath  = "certs"
 	DefaultConfigPath = "certs"
 	keyFilename       = ".secret"
 	rootCA            = "ca.crt"
@@ -74,6 +75,7 @@ func ParseArgs() *Settings {
 		datasource string
 		mqttURL    string
 		mqttPort   string
+		certsDir   string
 		configDir  string
 	)
 	flag.StringVar(&port, "port", DefaultPort, "The port the service listens on")
@@ -81,6 +83,7 @@ func ParseArgs() *Settings {
 	flag.StringVar(&datasource, "datasource", DefaultDataSource, "The data repository data source")
 	flag.StringVar(&mqttURL, "mqtturl", DefaultMQTTURL, "URL of the MQTT broker")
 	flag.StringVar(&mqttPort, "mqttport", DefaultMQTTPort, "Port of the MQTT broker")
+	flag.StringVar(&certsDir, "certsdir", DefaultCertsPath, "Directory path to the certificates")
 	flag.StringVar(&configDir, "configdir", DefaultConfigPath, "Directory path to the config file")
 	flag.Parse()
 
@@ -104,7 +107,7 @@ func ParseArgs() *Settings {
 	}
 
 	// Get the certificates for the MQTT broker
-	m, err := readCerts(configDir)
+	m, err := readCerts(certsDir)
 	if err != nil {
 		log.Fatalf("Error reading certificates: %v", err)
 	}
@@ -138,19 +141,19 @@ func getSecret(p string) (string, error) {
 }
 
 // readCerts reads the certificates from the file system
-func readCerts(configDir string) (MQTTConnect, error) {
+func readCerts(certsDir string) (MQTTConnect, error) {
 	c := MQTTConnect{}
-	rootCA, err := ioutil.ReadFile(path.Join(configDir, rootCA))
+	rootCA, err := ioutil.ReadFile(path.Join(certsDir, rootCA))
 	if err != nil {
 		return c, err
 	}
 
-	certFile, err := ioutil.ReadFile(path.Join(configDir, clientCert))
+	certFile, err := ioutil.ReadFile(path.Join(certsDir, clientCert))
 	if err != nil {
 		return c, err
 	}
 
-	key, err := ioutil.ReadFile(path.Join(configDir, clientKey))
+	key, err := ioutil.ReadFile(path.Join(certsDir, clientKey))
 
 	c.RootCA = rootCA
 	c.ClientKey = key

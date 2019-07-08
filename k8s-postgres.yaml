@@ -8,6 +8,7 @@ data:
   POSTGRES_DB: devicetwin
   POSTGRES_USER: manager
   POSTGRES_PASSWORD: dZfYe5Z80J3B
+  DATASOURCE: "dbname=devicetwin host=postgres-twin user=manager password=dZfYe5Z80J3B sslmode=disable"
 ---
 kind: PersistentVolume
 apiVersion: v1
