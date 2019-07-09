@@ -19,13 +19,15 @@ ARG DATASOURCE="dbname=devicetwin sslmode=disable"
 ARG PORT="8040"
 ARG MQTTURL="localhost"
 ARG MQTTPORT="8883"
-ARG CONFIGDIR="/srv/certs"
+ARG CERTSDIR="/srv/certs"
+ARG CONFIGDIR="/srv/config"
 ENV DRIVER="${DRIVER}"
 ENV DATASOURCE="${DATASOURCE}"
 ENV PORT="${PORT}"
 ENV MQTTURL="${MQTTURL}"
 ENV MQTTPORT="${MQTTPORT}"
+ENV CERTSDIR="${CERTSDIR}"
 ENV CONFIGDIR="${CONFIGDIR}"
 
 EXPOSE 8040
-ENTRYPOINT /srv/devicetwin -port $PORT -driver $DRIVER -datasource "${DATASOURCE}" -mqtturl $MQTTURL -mqttport $MQTTPORT -configdir $CONFIGDIR
+ENTRYPOINT /srv/devicetwin -port $PORT -driver $DRIVER -datasource "${DATASOURCE}" -mqtturl $MQTTURL -mqttport $MQTTPORT -certsdir $CERTSDIR -configdir $CONFIGDIR
