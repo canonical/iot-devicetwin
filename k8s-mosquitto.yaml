@@ -31,23 +31,23 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mosquitto
+  name: mqtt
 spec:
   selector:
     matchLabels:
-      app: mosquitto
+      app: mqtt
       tier: backend
       track: stable
   replicas: 1
   template:
     metadata:
       labels:
-        app: mosquitto
+        app: mqtt
         tier: backend
         track: stable
     spec:
       containers:
-        - name: mosquitto
+        - name: mqtt
           image: eclipse-mosquitto
           volumeMounts:
             - name: config-volume
@@ -70,11 +70,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mosquitto
+  name: mqtt
 spec:
   selector:
-    app: mosquitto
+    app: mqtt
     tier: backend
   ports:
     - port: 8883
       protocol: TCP
+
