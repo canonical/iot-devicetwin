@@ -45,5 +45,5 @@ where action_id=$1`
 const listActionSQL = `
 select id, created, modified, org_id, device_id, action_id, action, status, message
 from action
-where device_id=$1
+where org_id=$1 and device_id=$2
 order by created`

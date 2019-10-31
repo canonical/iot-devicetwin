@@ -48,7 +48,10 @@ func NewStore() *Store {
 		Snaps: []datastore.DeviceSnap{
 			{DeviceID: 1, Name: "example-snap", InstalledSize: 2000, Status: "active"},
 		},
-		Actions: []datastore.Action{},
+		Actions: []datastore.Action{
+			{ID: 1, OrganisationID: "abc", DeviceID: "c333", Action: "list", Status: ""},
+			{ID: 2, OrganisationID: "abc", DeviceID: "c333", Action: "list", Status: ""},
+		},
 		DeviceVersions: []datastore.DeviceVersion{
 			{ID: 1, DeviceID: 3, KernelVersion: "kernel-123", OSVersionID: "core-123", Series: "16"},
 		},
@@ -224,7 +227,7 @@ func (mem *Store) ActionUpdate(actionID, status, message string) error {
 }
 
 // ActionListForDevice fetches the actions for a device
-func (mem *Store) ActionListForDevice(clientID string) ([]datastore.Action, error) {
+func (mem *Store) ActionListForDevice(orgID, clientID string) ([]datastore.Action, error) {
 	mem.lock.RLock()
 	defer mem.lock.RUnlock()
 

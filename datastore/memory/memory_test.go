@@ -147,7 +147,7 @@ func TestStore_ActionWorkflow(t *testing.T) {
 		want    int64
 		wantErr bool
 	}{
-		{"valid", args{datastore.Action{ActionID: "a1", Action: "device", DeviceID: "a111"}}, 1, false},
+		{"valid", args{datastore.Action{ActionID: "a1", Action: "device", DeviceID: "a111"}}, 3, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -167,7 +167,7 @@ func TestStore_ActionWorkflow(t *testing.T) {
 				return
 			}
 
-			actions, err := mem.ActionListForDevice(tt.args.act.DeviceID)
+			actions, err := mem.ActionListForDevice("abc", tt.args.act.DeviceID)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Store.ActionListForDevice() error = %v, wantErr %v", err, tt.wantErr)
 				return

@@ -117,3 +117,15 @@ type DeviceVersion struct {
 	OnClassic     bool   `json:"onClassic"`
 	KernelVersion string `json:"kernelVersion"`
 }
+
+// Action is the log of an action request
+type Action struct {
+	Created        time.Time
+	Modified       time.Time
+	OrganisationID string
+	DeviceID       string
+	ActionID       string
+	Action         string
+	Status         string
+	Message        string
+}

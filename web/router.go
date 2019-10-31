@@ -36,6 +36,7 @@ func (wb Service) Router() *mux.Router {
 	router.Handle("/v1/device/{orgid}/{id}/snaps", Middleware(http.HandlerFunc(wb.SnapList))).Methods("GET")
 	router.Handle("/v1/device/{orgid}", Middleware(http.HandlerFunc(wb.DeviceList))).Methods("GET")
 	router.Handle("/v1/device/{orgid}/{id}", Middleware(http.HandlerFunc(wb.DeviceGet))).Methods("GET")
+	router.Handle("/v1/device/{orgid}/{id}/actions", Middleware(http.HandlerFunc(wb.ActionList))).Methods("GET")
 
 	// Actions on a device
 	router.Handle("/v1/device/{orgid}/{id}/snaps/list", Middleware(http.HandlerFunc(wb.SnapListPublish))).Methods("POST")

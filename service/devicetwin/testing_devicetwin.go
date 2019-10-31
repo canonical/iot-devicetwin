@@ -72,6 +72,14 @@ func (twin *MockDeviceTwin) ActionUpdate(actionID, status, message string) error
 	return nil
 }
 
+// ActionList mocks the action log list
+func (twin *MockDeviceTwin) ActionList(orgID, clientID string) ([]domain.Action, error) {
+	if clientID == "invalid" {
+		return nil, fmt.Errorf("MOCK error action list")
+	}
+	return []domain.Action{}, nil
+}
+
 // DeviceGet mocks fetching a device
 func (twin *MockDeviceTwin) DeviceGet(orgID, clientID string) (domain.Device, error) {
 	if clientID == "invalid" {

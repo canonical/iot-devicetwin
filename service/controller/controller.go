@@ -56,6 +56,7 @@ type Controller interface {
 	DeviceSnapRemove(orgID, clientID, snap string) error
 	DeviceSnapUpdate(orgID, clientID, snap, action string) error
 	DeviceSnapConf(orgID, clientID, snap, settings string) error
+	ActionList(orgID, clientID string) ([]domain.Action, error)
 }
 
 // Service implementation of the devicetwin service use cases

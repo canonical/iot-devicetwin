@@ -25,7 +25,6 @@ import (
 	"github.com/CanonicalLtd/iot-devicetwin/datastore"
 	"github.com/CanonicalLtd/iot-devicetwin/domain"
 	"log"
-	"time"
 )
 
 // DeviceTwin interface for the service
@@ -35,6 +34,7 @@ type DeviceTwin interface {
 
 	ActionCreate(orgID, deviceID string, act domain.SubscribeAction) error
 	ActionUpdate(actionID, status, message string) error
+	ActionList(orgID, deviceID string) ([]domain.Action, error)
 
 	DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, error)
 
@@ -112,24 +112,4 @@ func (srv *Service) ActionResponse(clientID, actionID, action string, payload []
 		log.Printf("Error updating action `%s`: %v", actionID, e)
 	}
 	return err // return the response from the original action
-}
-
-// ActionCreate logs an action
-func (srv *Service) ActionCreate(orgID, deviceID string, action domain.SubscribeAction) error {
-	act := datastore.Action{
-		OrganisationID: orgID,
-		DeviceID:       deviceID,
-		ActionID:       action.ID,
-		Action:         action.Action,
-		Status:         "requested",
-		Created:        time.Now(),
-		Modified:       time.Now(),
-	}
-	_, err := srv.DB.ActionCreate(act)
-	return err
-}
-
-// ActionUpdate updates action
-func (srv *Service) ActionUpdate(actionID, status, message string) error {
-	return srv.DB.ActionUpdate(actionID, status, message)
 }

@@ -53,6 +53,12 @@ type DevicesResponse struct {
 	Devices []domain.Device `json:"devices"`
 }
 
+// ActionsResponse is the JSON response to list actions for a device
+type ActionsResponse struct {
+	StandardResponse
+	Actions []domain.Action `json:"actions"`
+}
+
 // GroupsResponse is the JSON response to list groups
 type GroupsResponse struct {
 	StandardResponse
@@ -118,6 +124,15 @@ func formatGroupsResponse(groups []domain.Group, w http.ResponseWriter) {
 func formatGroupResponse(group domain.Group, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", JSONHeader)
 	response := GroupResponse{StandardResponse{}, group}
+
+	// Encode the response as JSON
+	encodeResponse(w, response)
+}
+
+// formatActionsResponse returns a JSON response from a actions list API method
+func formatActionsResponse(actions []domain.Action, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", JSONHeader)
+	response := ActionsResponse{StandardResponse{}, actions}
 
 	// Encode the response as JSON
 	encodeResponse(w, response)

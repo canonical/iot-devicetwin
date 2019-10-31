@@ -52,8 +52,8 @@ func (db *DataStore) ActionUpdate(actionID, status, message string) error {
 }
 
 // ActionListForDevice lists the actions for a device
-func (db *DataStore) ActionListForDevice(deviceID string) ([]datastore.Action, error) {
-	rows, err := db.Query(listActionSQL, deviceID)
+func (db *DataStore) ActionListForDevice(orgID, deviceID string) ([]datastore.Action, error) {
+	rows, err := db.Query(listActionSQL, orgID, deviceID)
 	if err != nil {
 		log.Printf("Error retrieving actions: %v\n", err)
 		return nil, err
