@@ -120,12 +120,12 @@ type DeviceVersion struct {
 
 // Action is the log of an action request
 type Action struct {
-	Created        time.Time
-	Modified       time.Time
-	OrganisationID string
-	DeviceID       string
-	ActionID       string
-	Action         string
-	Status         string
-	Message        string
+	Created        time.Time `json:"created"`
+	Modified       time.Time `json:"modified"`
+	OrganizationID string    `json:"organizationId"`
+	DeviceID       string    `json:"deviceId"`
+	ActionID       string    `json:"actionId"`
+	Action         string    `json:"action"`
+	Status         string    `json:"status"`
+	Message        string    `json:"message"`
 }

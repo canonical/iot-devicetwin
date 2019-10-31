@@ -33,7 +33,7 @@ func (db *DataStore) createActionTable() error {
 // ActionCreate log an new action
 func (db *DataStore) ActionCreate(act datastore.Action) (int64, error) {
 	var id int64
-	err := db.QueryRow(createActionSQL, act.OrganisationID, act.DeviceID, act.ActionID, act.Action, act.Status, act.Message).Scan(&id)
+	err := db.QueryRow(createActionSQL, act.OrganizationID, act.DeviceID, act.ActionID, act.Action, act.Status, act.Message).Scan(&id)
 	if err != nil {
 		log.Printf("Error creating action %s/%s: %v\n", act.DeviceID, act.ActionID, err)
 	}
@@ -63,7 +63,7 @@ func (db *DataStore) ActionListForDevice(orgID, deviceID string) ([]datastore.Ac
 	actions := []datastore.Action{}
 	for rows.Next() {
 		item := datastore.Action{}
-		err := rows.Scan(&item.ID, &item.Created, &item.Modified, &item.OrganisationID, &item.DeviceID, &item.ActionID, &item.Action, &item.Status, &item.Message)
+		err := rows.Scan(&item.ID, &item.Created, &item.Modified, &item.OrganizationID, &item.DeviceID, &item.ActionID, &item.Action, &item.Status, &item.Message)
 		if err != nil {
 			return nil, err
 		}

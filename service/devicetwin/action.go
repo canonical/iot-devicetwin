@@ -28,7 +28,7 @@ import (
 // ActionCreate logs an action
 func (srv *Service) ActionCreate(orgID, deviceID string, action domain.SubscribeAction) error {
 	act := datastore.Action{
-		OrganisationID: orgID,
+		OrganizationID: orgID,
 		DeviceID:       deviceID,
 		ActionID:       action.ID,
 		Action:         action.Action,
@@ -58,7 +58,7 @@ func (srv *Service) ActionList(orgID, deviceID string) ([]domain.Action, error) 
 		list = append(list, domain.Action{
 			Created:        act.Created,
 			Modified:       act.Modified,
-			OrganisationID: act.OrganisationID,
+			OrganizationID: act.OrganizationID,
 			DeviceID:       act.DeviceID,
 			ActionID:       act.ActionID,
 			Action:         act.Action,

@@ -26,7 +26,7 @@ type Action struct {
 	ID             int64
 	Created        time.Time
 	Modified       time.Time
-	OrganisationID string
+	OrganizationID string
 	DeviceID       string
 	ActionID       string
 	Action         string
