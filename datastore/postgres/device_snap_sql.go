@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS device_snap (
    version        varchar(200) default '',
    revision       int default 0,
    devmode        bool default false,
-   config         varchar(200) default ''
+   config         text default ''
 )
 `
 
