@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
+	"github.com/canonical/iot-devicetwin/datastore"
 )
 
 func TestStore_DeviceGet(t *testing.T) {

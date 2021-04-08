@@ -22,9 +22,9 @@ package controller
 import (
 	"testing"
 
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/service/devicetwin"
-	"github.com/CanonicalLtd/iot-devicetwin/service/mqtt"
+	"github.com/canonical/iot-devicetwin/config"
+	"github.com/canonical/iot-devicetwin/service/devicetwin"
+	"github.com/canonical/iot-devicetwin/service/mqtt"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 

@@ -20,8 +20,8 @@
 package devicetwin
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
+	"github.com/canonical/iot-devicetwin/datastore"
+	"github.com/canonical/iot-devicetwin/domain"
 	"time"
 )
 

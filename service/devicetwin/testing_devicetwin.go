@@ -21,7 +21,7 @@ package devicetwin
 
 import (
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
+	"github.com/canonical/iot-devicetwin/domain"
 )
 
 // MockDeviceTwin mocks a device twin service

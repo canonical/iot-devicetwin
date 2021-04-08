@@ -22,7 +22,7 @@ package mqtt
 import (
 	"testing"
 
-	"github.com/CanonicalLtd/iot-devicetwin/config"
+	"github.com/canonical/iot-devicetwin/config"
 )
 
 func TestGetConnection(t *testing.T) {

@@ -20,8 +20,8 @@
 package devicetwin
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore/memory"
+	"github.com/canonical/iot-devicetwin/config"
+	"github.com/canonical/iot-devicetwin/datastore/memory"
 	"testing"
 )
 

@@ -19,7 +19,7 @@
 
 package controller
 
-import "github.com/CanonicalLtd/iot-devicetwin/domain"
+import "github.com/canonical/iot-devicetwin/domain"
 
 // DeviceGet gets the device from the database cache
 func (srv *Service) DeviceGet(orgID, clientID string) (domain.Device, error) {

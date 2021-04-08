@@ -22,9 +22,9 @@ package devicetwin
 import (
 	"testing"
 
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore/memory"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
+	"github.com/canonical/iot-devicetwin/config"
+	"github.com/canonical/iot-devicetwin/datastore/memory"
+	"github.com/canonical/iot-devicetwin/domain"
 )
 
 func TestService_HealthHandler(t *testing.T) {

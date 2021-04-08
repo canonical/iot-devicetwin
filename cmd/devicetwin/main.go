@@ -20,12 +20,12 @@
 package main
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/service/controller"
-	"github.com/CanonicalLtd/iot-devicetwin/service/devicetwin"
-	"github.com/CanonicalLtd/iot-devicetwin/service/factory"
-	"github.com/CanonicalLtd/iot-devicetwin/service/mqtt"
-	"github.com/CanonicalLtd/iot-devicetwin/web"
+	"github.com/canonical/iot-devicetwin/config"
+	"github.com/canonical/iot-devicetwin/service/controller"
+	"github.com/canonical/iot-devicetwin/service/devicetwin"
+	"github.com/canonical/iot-devicetwin/service/factory"
+	"github.com/canonical/iot-devicetwin/service/mqtt"
+	"github.com/canonical/iot-devicetwin/web"
 	"log"
 )
 
