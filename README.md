@@ -25,7 +25,6 @@ The device twin record holds:
  ```bash
  $ go get github.com/canonical/iot-devicetwin
  $ cd iot-devicetwin
- $ ./get-deps.sh
  $ go build ./...
  ```
  
