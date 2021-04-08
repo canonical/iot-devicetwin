@@ -4,13 +4,13 @@
 	"package": [
 		{
 			"checksumSHA1": "+ib228fG9axbhqkI1f8Lt61tp0w=",
-			"path": "github.com/CanonicalLtd/iot-identity/domain",
+			"path": "github.com/canonical/iot-identity/domain",
 			"revision": "04f7df89ec0dd0adf805c6b4d61f6e4736057c50",
 			"revisionTime": "2019-04-12T17:00:22Z"
 		},
 		{
 			"checksumSHA1": "f/w+3kuasJir1CQCf8WBAfNDur0=",
-			"path": "github.com/CanonicalLtd/iot-identity/service/cert",
+			"path": "github.com/canonical/iot-identity/service/cert",
 			"revision": "04f7df89ec0dd0adf805c6b4d61f6e4736057c50",
 			"revisionTime": "2019-04-12T17:00:22Z"
 		},
@@ -87,5 +87,5 @@
 			"revisionTime": "2019-04-03T01:06:53Z"
 		}
 	],
-	"rootPath": "github.com/CanonicalLtd/iot-devicetwin"
+	"rootPath": "github.com/canonical/iot-devicetwin"
 }

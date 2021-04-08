@@ -19,7 +19,7 @@
 
 package controller
 
-import "github.com/CanonicalLtd/iot-devicetwin/domain"
+import "github.com/canonical/iot-devicetwin/domain"
 
 // ActionList gets the action log for a device
 func (srv *Service) ActionList(orgID, clientID string) ([]domain.Action, error) {

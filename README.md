@@ -14,8 +14,8 @@ The device twin record holds:
  - Details about the device's state
  - Details about the device's desired state
  
- The service provides a cache so the devices can be monitored by the [IoT Management](https://github.com/CanonicalLtd/iot-management) 
- Service, and relays actions to the device [IoT agent](https://github.com/CanonicalLtd/iot-agent) e.g. to install a new application.
+ The service provides a cache so the devices can be monitored by the [IoT Management](https://github.com/canonical/iot-management) 
+ Service, and relays actions to the device [IoT agent](https://github.com/canonical/iot-agent) e.g. to install a new application.
  
  ## Design
  ![IoT Management Solution Overview](./docs/IoTManagement.svg)
@@ -23,7 +23,7 @@ The device twin record holds:
  ## Build
  The project uses vendorized dependencies using `govendor`. Development has been done on minimum Go version 1.12.1.
  ```bash
- $ go get github.com/CanonicalLtd/iot-devicetwin
+ $ go get github.com/canonical/iot-devicetwin
  $ cd iot-devicetwin
  $ ./get-deps.sh
  $ go build ./...
@@ -51,9 +51,9 @@ The device twin record holds:
  ## Contributing
  Before contributing you should sign [Canonical's contributor agreement](https://www.ubuntu.com/legal/contributors), it’s the easiest way for you to give us permission to use your contributions.
 
-[travis-image]: https://travis-ci.org/CanonicalLtd/iot-devicetwin.svg?branch=master
-[travis-url]: https://travis-ci.org/CanonicalLtd/iot-devicetwin
-[goreportcard-image]: https://goreportcard.com/badge/github.com/CanonicalLtd/iot-devicetwin
-[goreportcard-url]: https://goreportcard.com/report/github.com/CanonicalLtd/iot-devicetwin
-[codecov-url]: https://codecov.io/gh/CanonicalLtd/iot-devicetwin
-[codecov-image]: https://codecov.io/gh/CanonicalLtd/iot-devicetwin/branch/master/graph/badge.svg
+[travis-image]: https://travis-ci.org/canonical/iot-devicetwin.svg?branch=master
+[travis-url]: https://travis-ci.org/canonical/iot-devicetwin
+[goreportcard-image]: https://goreportcard.com/badge/github.com/canonical/iot-devicetwin
+[goreportcard-url]: https://goreportcard.com/report/github.com/canonical/iot-devicetwin
+[codecov-url]: https://codecov.io/gh/canonical/iot-devicetwin
+[codecov-image]: https://codecov.io/gh/canonical/iot-devicetwin/branch/master/graph/badge.svg

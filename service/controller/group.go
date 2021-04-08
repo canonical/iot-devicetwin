@@ -19,7 +19,7 @@
 
 package controller
 
-import "github.com/CanonicalLtd/iot-devicetwin/domain"
+import "github.com/canonical/iot-devicetwin/domain"
 
 // GroupCreate creates a device group
 func (srv *Service) GroupCreate(orgID, name string) error {

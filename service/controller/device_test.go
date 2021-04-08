@@ -22,8 +22,8 @@ package controller
 import (
 	"testing"
 
-	"github.com/CanonicalLtd/iot-devicetwin/service/devicetwin"
-	"github.com/CanonicalLtd/iot-devicetwin/service/mqtt"
+	"github.com/canonical/iot-devicetwin/service/devicetwin"
+	"github.com/canonical/iot-devicetwin/service/mqtt"
 )
 
 func TestService_DeviceGet(t *testing.T) {

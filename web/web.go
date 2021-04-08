@@ -21,10 +21,10 @@ package web
 
 import (
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/service/controller"
+	"github.com/canonical/iot-devicetwin/service/controller"
 	"net/http"
 
-	"github.com/CanonicalLtd/iot-devicetwin/config"
+	"github.com/canonical/iot-devicetwin/config"
 )
 
 // Service is the implementation of the web API

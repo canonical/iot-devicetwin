@@ -21,7 +21,7 @@ package postgres
 
 import (
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
+	"github.com/canonical/iot-devicetwin/datastore"
 	"log"
 )
 

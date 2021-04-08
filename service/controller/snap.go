@@ -21,7 +21,7 @@ package controller
 
 import (
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
+	"github.com/canonical/iot-devicetwin/domain"
 	"time"
 )
 

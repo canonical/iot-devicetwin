@@ -23,7 +23,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/config"
+	"github.com/canonical/iot-devicetwin/config"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"log"
 )

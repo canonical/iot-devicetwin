@@ -21,7 +21,7 @@ package web
 
 import (
 	"encoding/json"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
+	"github.com/canonical/iot-devicetwin/domain"
 	"github.com/gorilla/mux"
 	"io"
 	"log"

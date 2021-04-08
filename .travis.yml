@@ -1,5 +1,5 @@
 language: go
-go_import_path: github.com/CanonicalLtd/iot-devicetwin
+go_import_path: github.com/canonical/iot-devicetwin
 go:
   - 1.12
 env:

@@ -21,8 +21,8 @@ package devicetwin
 
 import (
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
+	"github.com/canonical/iot-devicetwin/datastore"
+	"github.com/canonical/iot-devicetwin/domain"
 )
 
 // DeviceGet fetches a device details from the database cache
