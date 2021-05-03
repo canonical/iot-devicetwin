@@ -1,0 +1,116 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: devicetwin-pv-volume-twin
+  labels:
+    type: local
+    app: devicetwin
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 0.5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: devicetwin-pv-claim-twin
+  labels:
+    app: devicetwin
+spec:
+  storageClassName: gp2
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 0.5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devicetwin
+spec:
+  selector:
+    matchLabels:
+      app: devicetwin
+      tier: frontend
+      track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: devicetwin
+        tier: frontend
+        track: stable
+    spec:
+      initContainers:
+        - name: create-db
+          image: jbergknoff/postgresql-client
+          command: ["psql", "-d", "$(DATASOURCE)", "-f", "/sql/create-db.sql"]
+          env:
+            - name: DATASOURCE
+              valueFrom:
+                  configMapKeyRef:
+                    name: postgres-config-admin
+                    key: DATASOURCE
+          volumeMounts:
+          - name: sql
+            mountPath: /sql
+      containers:
+        - name: devicetwin
+          image: ${IMAGE}
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: certs
+              mountPath: /srv/certs
+            - name: config
+              mountPath: /srv/config
+          env:
+            - name: PORT
+              value: "8040"
+            - name: DRIVER
+              value: "postgres"
+            - name: DATASOURCE
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config-twin
+                  key: DATASOURCE
+            - name: MQTTURL
+              value: "mqtt"
+            - name: MQTTPORT
+              value: "8883"
+            - name: CERTSDIR
+              value: "/srv/certs"
+            - name: CONFIGDIR
+              value: "/srv/config"
+          ports:
+            - containerPort: 8040
+      volumes:
+        - name: certs
+          secret:
+            secretName: devicetwin-certs
+        - name: config
+          persistentVolumeClaim:
+            claimName: devicetwin-pv-claim-twin
+        - name: sql
+          configMap:
+            name: postgres-config-twin
+            items:
+            - key: DB_CREATE_SQL
+              path: create-db.sql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devicetwin
+spec:
+  selector:
+    app: devicetwin
+    tier: frontend
+  ports:
+    - port: 8040
+      protocol: TCP
+
