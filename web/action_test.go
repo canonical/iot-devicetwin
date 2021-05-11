@@ -20,8 +20,9 @@
 package web
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/config"
 	"testing"
+
+	"github.com/everactive/iot-devicetwin/config"
 )
 
 func TestService_ActionList(t *testing.T) {

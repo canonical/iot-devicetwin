@@ -17,14 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Package web contains the code for handling the REST API
 package web
 
 import (
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/service/controller"
 	"net/http"
 
-	"github.com/CanonicalLtd/iot-devicetwin/config"
+	"github.com/everactive/iot-devicetwin/service/controller"
+
+	"github.com/everactive/iot-devicetwin/config"
 )
 
 // Service is the implementation of the web API

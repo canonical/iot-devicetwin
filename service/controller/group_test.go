@@ -22,8 +22,8 @@ package controller
 import (
 	"testing"
 
-	"github.com/CanonicalLtd/iot-devicetwin/service/devicetwin"
-	"github.com/CanonicalLtd/iot-devicetwin/service/mqtt"
+	"github.com/everactive/iot-devicetwin/service/devicetwin"
+	"github.com/everactive/iot-devicetwin/service/mqtt"
 )
 
 func TestService_GroupCreate(t *testing.T) {

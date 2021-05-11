@@ -21,21 +21,23 @@ package devicetwin
 
 import (
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
+
+	"github.com/everactive/iot-devicetwin/pkg/messages"
+
+	"github.com/everactive/iot-devicetwin/datastore"
 )
 
 // DeviceGet fetches a device details from the database cache
-func (srv *Service) DeviceGet(orgID, clientID string) (domain.Device, error) {
+func (srv *Service) DeviceGet(orgID, clientID string) (messages.Device, error) {
 	// Get the device
 	d, err := srv.DB.DeviceGet(clientID)
 	if err != nil {
-		return domain.Device{}, err
+		return messages.Device{}, err
 	}
 
 	// Validate the supplied orgid
 	if d.OrganisationID != orgID {
-		return domain.Device{}, fmt.Errorf("the organization ID does not match the device")
+		return messages.Device{}, fmt.Errorf("the organization ID does not match the device")
 	}
 
 	device := dataToDomainDevice(d)
@@ -44,12 +46,12 @@ func (srv *Service) DeviceGet(orgID, clientID string) (domain.Device, error) {
 	dv, err := srv.DB.DeviceVersionGet(d.ID)
 	if err == nil {
 		// We have the OS details, so use them
-		device.Version = domain.DeviceVersion{
-			DeviceID:      d.DeviceID,
+		device.Version = &messages.DeviceVersion{
+			DeviceId:      d.DeviceID,
 			Version:       dv.Version,
 			Series:        dv.Series,
-			OSID:          dv.OSID,
-			OSVersionID:   dv.OSVersionID,
+			OsId:          dv.OSID,
+			OsVersionId:   dv.OSVersionID,
 			OnClassic:     dv.OnClassic,
 			KernelVersion: dv.KernelVersion,
 		}
@@ -58,31 +60,41 @@ func (srv *Service) DeviceGet(orgID, clientID string) (domain.Device, error) {
 	return device, nil
 }
 
+// DeviceDelete deletes the device from the database
+func (srv *Service) DeviceDelete(deviceID string) (string, error) {
+	err := srv.DB.DeviceDelete(deviceID)
+	if err != nil {
+		return "failed to delete device", err
+	}
+
+	return deviceID, nil
+}
+
 // DeviceList fetches devices from the database cache
-func (srv *Service) DeviceList(orgID string) ([]domain.Device, error) {
+func (srv *Service) DeviceList(orgID string) ([]messages.Device, error) {
 	dd, err := srv.DB.DeviceList(orgID)
 	if err != nil {
 		return nil, err
 	}
 
-	devices := []domain.Device{}
+	devices := []messages.Device{}
 	for _, d := range dd {
 		devices = append(devices, dataToDomainDevice(d))
 	}
 	return devices, nil
 }
 
-func dataToDomainDevice(d datastore.Device) domain.Device {
-	return domain.Device{
-		OrganizationID: d.OrganisationID,
-		DeviceID:       d.DeviceID,
-		Brand:          d.Brand,
-		Model:          d.Model,
-		SerialNumber:   d.SerialNumber,
-		StoreID:        d.StoreID,
-		DeviceKey:      d.DeviceKey,
-		Version:        domain.DeviceVersion{},
-		Created:        d.Created,
-		LastRefresh:    d.LastRefresh,
+func dataToDomainDevice(d datastore.Device) messages.Device {
+	return messages.Device{
+		OrgId:       d.OrganisationID,
+		DeviceId:    d.DeviceID,
+		Brand:       d.Brand,
+		Model:       d.Model,
+		Serial:      d.SerialNumber,
+		Store:       d.StoreID,
+		DeviceKey:   d.DeviceKey,
+		Version:     &messages.DeviceVersion{},
+		Created:     d.Created,
+		LastRefresh: d.LastRefresh,
 	}
 }

@@ -20,9 +20,11 @@
 package postgres
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
-	"log"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/everactive/iot-devicetwin/datastore"
 )
 
 // CreateDeviceTable creates the database table for devices with its indexes.
@@ -63,6 +65,61 @@ func (db *DataStore) DevicePing(deviceID string, refresh time.Time) error {
 	return err
 }
 
+// DeviceDelete deletes the device
+func (db *DataStore) DeviceDelete(deviceID string) error {
+	// Get the reference device
+	device := datastore.Device{}
+	row := db.QueryRow(getDeviceSQL, deviceID)
+	err := row.Scan(&device.ID, &device.Created, &device.LastRefresh, &device.OrganisationID, &device.DeviceID, &device.Brand, &device.Model, &device.SerialNumber, &device.StoreID, &device.DeviceKey, &device.Active)
+	if err != nil {
+		log.Printf("Error retrieving device %s: %v\n", deviceID, err)
+		return err
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		log.Printf("There was an error starting a transaction, device id=%s cannot be deleted", deviceID)
+		return err
+	}
+
+	// first delete all the snaps, stored based on the device's primary key "id"
+	_, err = db.Exec(deleteDeviceSnapsSQL, device.ID)
+	if err != nil {
+		log.Printf("Error deleting the device snaps: %v\n", err)
+		err = tx.Rollback()
+		if err != nil {
+			log.Printf("Error rolling back: %v\n", err)
+		}
+	}
+
+	// then delete the version, stored based on the device's primary key "id"
+	_, err = db.Exec(deleteDeviceVersionSQL, device.ID)
+	if err != nil {
+		log.Printf("Error deleting the device version: %v\n", err)
+		err = tx.Rollback()
+		if err != nil {
+			log.Printf("Error rolling back: %v\n", err)
+		}
+	}
+
+	// finally delete the device
+	_, err = tx.Exec(deleteDeviceSQL, deviceID)
+	if err != nil {
+		log.Printf("Error deleting the device: %v\n", err)
+		err = tx.Rollback()
+		if err != nil {
+			log.Printf("Error rolling back: %v\n", err)
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("Error committing transaction: %v\n", err)
+	}
+
+	return err
+}
+
 // DeviceList fetches the devices for an organization from the database
 func (db *DataStore) DeviceList(orgID string) ([]datastore.Device, error) {
 	rows, err := db.Query(listDeviceSQL, orgID)
@@ -70,7 +127,12 @@ func (db *DataStore) DeviceList(orgID string) ([]datastore.Device, error) {
 		log.Printf("Error retrieving devices: %v\n", err)
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Printf("Error attempting to close rows: %+v", err)
+		}
+	}()
 
 	devices := []datastore.Device{}
 	for rows.Next() {
@@ -81,6 +143,8 @@ func (db *DataStore) DeviceList(orgID string) ([]datastore.Device, error) {
 		}
 		devices = append(devices, item)
 	}
+
+	log.Tracef("Devices: %+v", devices)
 
 	return devices, nil
 }

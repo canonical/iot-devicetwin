@@ -24,7 +24,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/CanonicalLtd/iot-devicetwin/config"
+	"github.com/everactive/iot-devicetwin/config"
 )
 
 func TestService_GroupCreate(t *testing.T) {

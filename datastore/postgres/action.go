@@ -20,8 +20,9 @@
 package postgres
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
 	"log"
+
+	"github.com/everactive/iot-devicetwin/datastore"
 )
 
 // createActionTable creates the database table for actions send to a device
@@ -58,7 +59,12 @@ func (db *DataStore) ActionListForDevice(orgID, deviceID string) ([]datastore.Ac
 		log.Printf("Error retrieving actions: %v\n", err)
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Printf("Error attempting to close rows: %+v", err)
+		}
+	}()
 
 	actions := []datastore.Action{}
 	for rows.Next() {

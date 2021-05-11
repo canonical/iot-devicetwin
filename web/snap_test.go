@@ -24,10 +24,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/service/controller"
-	"github.com/CanonicalLtd/iot-devicetwin/service/devicetwin"
-	"github.com/CanonicalLtd/iot-devicetwin/service/mqtt"
+	"github.com/everactive/iot-devicetwin/config"
+	"github.com/everactive/iot-devicetwin/service/controller"
+	"github.com/everactive/iot-devicetwin/service/devicetwin"
+	"github.com/everactive/iot-devicetwin/service/mqtt"
 )
 
 func testController() controller.Controller {
@@ -88,6 +88,50 @@ func TestService_SnapActions(t *testing.T) {
 		{"invalid-update-invalid", "/v1/device/abc/a111/snaps/helloworld/invalid", "PUT", nil, 400, "SnapUpdate"},
 		{"valid-update-settings", "/v1/device/abc/a111/snaps/helloworld/settings", "PUT", strings.NewReader(settings1), 200, ""},
 		{"invalid-update-settings", "/v1/device/abc/invalid/snaps/helloworld/settings", "PUT", strings.NewReader(settings1), 400, "SnapSetConf"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			wb := NewService(config.TestConfig(), testController())
+			w := sendRequest(tt.method, tt.url, tt.data, wb)
+			if w.Code != tt.code {
+				t.Errorf("Web.SnapActions() got = %v, want %v", w.Code, tt.code)
+			}
+			resp, err := parseStandardResponse(w.Body)
+			if err != nil {
+				t.Errorf("Web.SnapActions() got = %v", err)
+			}
+			if resp.Code != tt.result {
+				t.Errorf("Web.SnapActions() got = %v, want %v", resp.Code, tt.result)
+			}
+		})
+	}
+}
+
+func TestService_SnapServiceAction(t *testing.T) {
+	snapServices := `{"services":["hello_world", "goodbye_world"]}`
+	emptyBody := "{}"
+	noBody := ""
+	tests := []struct {
+		name   string
+		url    string
+		method string
+		data   io.Reader
+		code   int
+		result string
+	}{
+		{"valid-start", "/v1/device/abc/a111/services/helloworld/start", "POST", strings.NewReader(emptyBody), 200, ""},
+		{"valid-start-specific-services", "/v1/device/abc/a111/services/helloworld/start", "POST", strings.NewReader(snapServices), 200, ""},
+		{"valid-stop", "/v1/device/abc/a111/services/helloworld/stop", "POST", strings.NewReader(emptyBody), 200, ""},
+		{"valid-stop-specific-services", "/v1/device/abc/a111/services/helloworld/stop", "POST", strings.NewReader(snapServices), 200, ""},
+		{"valid-restart", "/v1/device/abc/a111/services/helloworld/restart", "POST", strings.NewReader(emptyBody), 200, ""},
+		{"valid-restart-specific-services", "/v1/device/abc/a111/services/helloworld/restart", "POST", strings.NewReader(snapServices), 200, ""},
+
+		{"empty-start", "/v1/device/abc/a111/services/helloworld/start", "POST", strings.NewReader(noBody), 200, ""},
+		{"empty-stop", "/v1/device/abc/a111/services/helloworld/stop", "POST", strings.NewReader(noBody), 200, ""},
+		{"empty-restart", "/v1/device/abc/a111/services/helloworld/restart", "POST", strings.NewReader(noBody), 200, ""},
+
+		{"invalid-action", "/v1/device/abc/a111/services/helloworld/invalid", "POST", strings.NewReader(emptyBody), 400, "SnapServiceAction"},
+		//  /v1/device/{orgid}/{id}/snaps/{snap}/{action}
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

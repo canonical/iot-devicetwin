@@ -1,0 +1,17 @@
+  version: '3'
+
+  tasks:
+    build:
+      desc: Build the devicetwin server
+      cmds:
+        - go build cmd/devicetwin/main.go
+    generate-message-structs:
+      desc: This will generate the Go structs from the schema definitions
+      cmds:
+        - mkdir -p pkg/messages
+        - schema-generate -o pkg/messages/messages.go -p messages ./schemas/schemas.json
+        - schema-generate -o pkg/messages/snap.go -p messages ./schemas/snap_service.schema.json
+    test:
+      desc: Run the short tests for the whole repo
+      cmds:
+        - go test -short $(go list ./... | grep -v vendor) -count 1

@@ -23,9 +23,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"log"
+
+	MQTT "github.com/eclipse/paho.mqtt.golang"
+	"github.com/everactive/iot-devicetwin/config"
 )
 
 // Constants for connecting to the MQTT broker
@@ -33,7 +34,7 @@ const (
 	quiesce        = 250
 	QOSAtMostOnce  = byte(0)
 	QOSAtLeastOnce = byte(1)
-	//QOSExactlyOnce = byte(2)
+	// QOSExactlyOnce = byte(2)
 )
 
 var conn *Connection
@@ -56,14 +57,14 @@ type Connection struct {
 func GetConnection(settings *config.Settings) (*Connection, error) {
 	if conn == nil {
 		// Create the client
-		client, err := newClient(settings)
+		localClient, err := newClient(settings)
 		if err != nil {
 			return nil, err
 		}
 
 		// Create a new connection
 		conn = &Connection{
-			client:   client,
+			client:   localClient,
 			clientID: settings.MQTTConnect.ClientID,
 		}
 	}
@@ -132,6 +133,7 @@ func newTLSConfig(settings *config.Settings) (*tls.Config, error) {
 		ClientCAs: nil,
 		// InsecureSkipVerify = verify that cert contents
 		// match server. IP matches what is in cert etc.
+		// nolint: gosec
 		InsecureSkipVerify: true,
 		// Certificates = list of certs client sends to server.
 		Certificates: []tls.Certificate{cert},

@@ -38,12 +38,16 @@ func (wb Service) Router() *mux.Router {
 	router.Handle("/v1/device/{orgid}/{id}", Middleware(http.HandlerFunc(wb.DeviceGet))).Methods("GET")
 	router.Handle("/v1/device/{orgid}/{id}/actions", Middleware(http.HandlerFunc(wb.ActionList))).Methods("GET")
 
+	router.Handle("/v1/device/{id}", Middleware(http.HandlerFunc(wb.DeviceDelete))).Methods("DELETE")
+
 	// Actions on a device
+	router.Handle("/v1/device/{orgid}/{id}", Middleware(http.HandlerFunc(wb.DeviceUnregister))).Methods("DELETE")
 	router.Handle("/v1/device/{orgid}/{id}/snaps/list", Middleware(http.HandlerFunc(wb.SnapListPublish))).Methods("POST")
 	router.Handle("/v1/device/{orgid}/{id}/snaps/{snap}", Middleware(http.HandlerFunc(wb.SnapInstall))).Methods("POST")
 	router.Handle("/v1/device/{orgid}/{id}/snaps/{snap}", Middleware(http.HandlerFunc(wb.SnapRemove))).Methods("DELETE")
 	router.Handle("/v1/device/{orgid}/{id}/snaps/{snap}/settings", Middleware(http.HandlerFunc(wb.SnapUpdateConf))).Methods("PUT")
 	router.Handle("/v1/device/{orgid}/{id}/snaps/{snap}/{action}", Middleware(http.HandlerFunc(wb.SnapUpdateAction))).Methods("PUT")
+	router.Handle("/v1/device/{orgid}/{id}/services/{snap}/{action}", Middleware(http.HandlerFunc(wb.SnapServiceAction))).Methods("POST")
 
 	// Actions on a group
 	router.Handle("/v1/group/{orgid}", Middleware(http.HandlerFunc(wb.GroupCreate))).Methods("POST")

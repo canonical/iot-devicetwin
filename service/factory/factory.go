@@ -17,14 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Package factory creates the Datastore as configured
 package factory
 
 import (
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore/memory"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore/postgres"
+
+	"github.com/everactive/iot-devicetwin/config"
+	"github.com/everactive/iot-devicetwin/datastore"
+	"github.com/everactive/iot-devicetwin/datastore/memory"
+	"github.com/everactive/iot-devicetwin/datastore/postgres"
 )
 
 // CreateDataStore is the factory method to create a data store

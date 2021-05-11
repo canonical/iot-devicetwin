@@ -1,0 +1,150 @@
+image: gitlab.everactive.com:4567/software/gateway/docker-go-ci:latest
+
+stages:
+    - build
+    - analysis
+    - test
+    - deploy
+    - docs
+    - publish-pages
+
+variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+    GIT_SUBMODULE_STRATEGY: normal
+
+services:
+    - docker:dind
+
+build_latest:
+    stage: build
+    script:
+        - echo -e "machine gitlab.everactive.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
+        - GOPRIVATE=gitlab.everactive.com CGO_ENABLED=1 GOOS=linux go build -a -o /go/bin/devicetwin -ldflags='-extldflags "-static"' cmd/devicetwin/main.go
+    artifacts:
+        name: ${PROJECT_NAME}-${CI_JOB_NAME}-${CI_COMMIT_SHORT_SHA}
+        paths:
+            - ${PROJECT_NAME}
+
+build_image:
+    stage: build
+    image: docker:git
+    except:
+        - main
+    tags:
+        - docker-in-docker
+    script:
+        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+        - echo -e "machine gitlab.everactive.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > .netrc
+        - docker build -t ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}:latest .
+        - docker push ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}:latest
+
+build_image_main:
+    stage: build
+    image: docker:git
+    only:
+        - main
+    tags:
+        - docker-in-docker
+    script:
+        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+        - echo -e "machine gitlab.everactive.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > .netrc
+        - docker build -t ${CI_REGISTRY_IMAGE}:latest  .
+        - docker push ${CI_REGISTRY_IMAGE}:latest
+
+static-analysis:
+    stage: analysis
+    needs: []
+    script:
+        - echo -e "machine gitlab.everactive.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
+        - GOPRIVATE=gitlab.everactive.com golangci-lint run --out-format code-climate | tee code-quality-report.json | jq -r '.[] | "\(.location.path):\(.location.lines.begin) \(.description)"'
+    artifacts:
+        reports:
+            codequality: code-quality-report.json
+        paths:
+            - code-quality-report.json
+    allow_failure: false
+
+license_report:
+    stage: analysis
+    needs:
+        - job: build_latest
+          artifacts: true
+    script:
+        # We may want to look into something like this in the future, but I can't get it to not fail
+        # in the presence of no license...
+        # - echo 'allow = ["MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "MPL-2.0",""]' > config.hcl
+        # - echo 'deny  = ["GPL-1.0-or-later"]' >> config.hcl
+        - (golicense ./${PROJECT_NAME} | tee license_report.txt) || true
+    artifacts:
+        paths:
+            - license_report.txt
+
+test:
+    stage: test
+    script:
+        - echo -e "machine gitlab.everactive.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
+        - GOPRIVATE=gitlab.everactive.com go test ./...
+
+docs-build:
+    image: gitlab.everactive.com:4567/software/gateway/asyncapi-util:main
+    stage: docs
+    script:
+        - ag asyncapi.yaml @asyncapi/html-template -o ./asyncapi-docs
+    artifacts:
+        paths:
+            - ./asyncapi-docs
+
+pages:
+    stage: publish-pages
+    script:
+        - mkdir -p public
+        - mv asyncapi-docs/* public/.
+    only:
+        refs:
+            - main
+    artifacts:
+        paths:
+            - public
+        expire_in: 90 days
+deploy_dev:
+    stage: deploy
+    image: gitlab.everactive.com:4567/software/devops/system:v0-14-8
+    only:
+        - dev
+    tags:
+        - docker-in-docker
+    script:
+        - gitlab-init.sh
+        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+        - cd deploy
+        - make BRANCH_STAGE=dev push
+        - make deploy STACK_NAME=dev_us-east1-1_default
+
+deploy_staging:
+    stage: deploy
+    image: gitlab.everactive.com:4567/software/devops/system:v0-14-8
+    only:
+        - staging
+    tags:
+        - docker-in-docker
+    script:
+        - gitlab-init.sh
+        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+        - cd deploy
+        - make BRANCH_STAGE=staging push
+        - make deploy STACK_NAME=stage_us-east1-1_default
+    
+#deploy_prod:
+#    stage: deploy
+#    image: gitlab.everactive.com:4567/software/devops/system:v0-14-8
+#    only:
+#        - main
+#    tags:
+#        - docker-in-docker
+#    script:
+#        - gitlab-init.sh
+#        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#        - cd deploy
+#        - make BRANCH_STAGE=main push
+#        - make deploy STACK_NAME=prod_us-east1-1_default

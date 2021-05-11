@@ -20,8 +20,9 @@
 package postgres
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
 	"log"
+
+	"github.com/everactive/iot-devicetwin/datastore"
 )
 
 // createDeviceVersionTable creates the database table for a device's OS details

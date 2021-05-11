@@ -20,9 +20,10 @@
 package devicetwin
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore/memory"
 	"testing"
+
+	"github.com/everactive/iot-devicetwin/config"
+	"github.com/everactive/iot-devicetwin/datastore/memory"
 )
 
 func TestService_ActionList(t *testing.T) {
@@ -40,15 +41,16 @@ func TestService_ActionList(t *testing.T) {
 		{"valid", args{"abc", "a111"}, 0, false},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		localtt := tt
+		t.Run(localtt.name, func(t *testing.T) {
 			srv := NewService(config.TestConfig(), memory.NewStore())
-			got, err := srv.ActionList(tt.args.orgID, tt.args.deviceID)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ActionList() error = %v, wantErr %v", err, tt.wantErr)
+			got, err := srv.ActionList(localtt.args.orgID, localtt.args.deviceID)
+			if (err != nil) != localtt.wantErr {
+				t.Errorf("ActionList() error = %v, wantErr %v", err, localtt.wantErr)
 				return
 			}
-			if len(got) != tt.want {
-				t.Errorf("ActionList() got = %v, want %v", len(got), tt.want)
+			if len(got) != localtt.want {
+				t.Errorf("ActionList() got = %v, want %v", len(got), localtt.want)
 			}
 		})
 	}

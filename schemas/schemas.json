@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "title": "IoT DeviceTwin to Agent schema definitions",
+  "description": "The schema definitions for the messages passed between the agent and the device twin service",
+  "definitions": {
+    "deviceSnap": {
+      "type": "object",
+      "properties": {
+        "deviceId":        { "type":  "string" },
+        "name":            { "type":  "string" },
+        "installedSize":   { "type":  "integer", "format": "int64" },
+        "installedDate":   { "type":  "string", "format": "date-time" },
+        "status":          { "type":  "string" },
+        "channel":         { "type":  "string" },
+        "confinement":     { "type":  "string" },
+        "version":         { "type":  "string" },
+        "revision":        { "type":  "integer" },
+        "devmode":         { "type":  "boolean" },
+        "config":          { "type":  "string" }
+      }
+    },
+    "device": {
+      "type": "object",
+      "properties": {
+        "orgId":              { "type":  "string" },
+        "deviceId":           { "type":  "string" },
+        "brand":              { "type":  "string" },
+        "model":              { "type":  "string" },
+        "serial":             { "type":  "string" },
+        "store":              { "type":  "string" },
+        "deviceKey":          { "type":  "string" },
+        "version":            { "$ref":  "#/definitions/deviceVersion" },
+        "created":            { "type":  "string", "format": "date-time" },
+        "lastRefresh":        { "type":  "string", "format": "date-time" }
+      }
+    },
+    "deviceVersion": {
+      "type": "object",
+      "properties": {
+        "deviceId":        { "type":  "string" },
+        "version":         { "type":  "string" },
+        "series":          { "type":  "string" },
+        "osId":            { "type":  "string" },
+        "osVersionId":     { "type":  "string" },
+        "onClassic":       { "type":  "boolean" },
+        "kernelVersion":   { "type":  "string" }
+      }
+    },
+    "health": {
+      "type": "object",
+      "properties": {
+        "orgId":            { "type":  "string" },
+        "deviceId":         { "type":  "string" },
+        "refresh":          { "type":  "string", "format": "date-time" }
+      }
+    },
+    "publishDevice": {
+      "type": "object",
+      "properties": {
+        "id":              { "type":  "string" },
+        "action":          { "type":  "string" },
+        "success":         { "type":  "boolean" },
+        "message":         { "type":  "string" },
+        "result": { "$ref": "#/definitions/device" }
+      }
+    },
+    "publishDeviceVersion": {
+      "type": "object",
+      "properties": {
+        "id":              { "type":  "string" },
+        "action":          { "type":  "string" },
+        "success":         { "type":  "boolean" },
+        "message":         { "type":  "string" },
+        "result": { "$ref": "#/definitions/deviceVersion" }
+      }
+    },
+    "publishResponse": {
+      "type": "object",
+      "properties": {
+        "id":              { "type":  "string" },
+        "action":          { "type":  "string" },
+        "success":         { "type":  "boolean" },
+        "message":         { "type":  "string" }
+      }
+    },
+    "publishSnap": {
+      "type": "object",
+      "properties": {
+        "id":              { "type":  "string" },
+        "action":          { "type":  "string" },
+        "success":         { "type":  "boolean" },
+        "message":         { "type":  "string" },
+        "result": { "$ref":  "#/definitions/deviceSnap" }
+      }
+    },
+    "publishSnaps": {
+      "type": "object",
+      "properties": {
+        "id":              { "type":  "string" },
+        "action":          { "type":  "string" },
+        "success":         { "type":  "boolean" },
+        "message":         { "type":  "string" },
+        "result": {
+          "type":  "array",
+          "items": { "$ref": "#/definitions/deviceSnap" }
+        }
+      }
+    },
+    "publishSnapTask": {
+      "type": "object",
+      "properties": {
+        "id":              { "type":  "string" },
+        "action":          { "type":  "string" },
+        "success":         { "type":  "boolean" },
+        "message":         { "type":  "string" },
+        "result":          { "type":  "string" }
+      }
+    },
+    "subscribeAction": {
+      "type": "object",
+      "properties": {
+        "id":              { "type":  "string" },
+        "action":          {
+          "type":  "string",
+          "enum": [ "ack", "conf", "device", "disable", "enable", "info", "install", "list", "refresh", "remove", "revert", "server", "setconf", "start", "stop", "restart", "unregister"]
+        },
+        "snap":            { "type":  "string" },
+        "data":            { "type":  "string" }
+      }
+    }
+  }
+}

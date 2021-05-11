@@ -19,7 +19,10 @@
 
 package controller
 
-import "github.com/CanonicalLtd/iot-devicetwin/domain"
+import (
+	"github.com/everactive/iot-devicetwin/domain"
+	"github.com/everactive/iot-devicetwin/pkg/messages"
+)
 
 // GroupCreate creates a device group
 func (srv *Service) GroupCreate(orgID, name string) error {
@@ -47,11 +50,11 @@ func (srv *Service) GroupUnlinkDevice(orgID, name, clientID string) error {
 }
 
 // GroupGetDevices retrieves the devices from a group
-func (srv *Service) GroupGetDevices(orgID, name string) ([]domain.Device, error) {
+func (srv *Service) GroupGetDevices(orgID, name string) ([]messages.Device, error) {
 	return srv.DeviceTwin.GroupGetDevices(orgID, name)
 }
 
 // GroupGetExcludedDevices retrieves the devices not in a group
-func (srv *Service) GroupGetExcludedDevices(orgID, name string) ([]domain.Device, error) {
+func (srv *Service) GroupGetExcludedDevices(orgID, name string) ([]messages.Device, error) {
 	return srv.DeviceTwin.GroupGetExcludedDevices(orgID, name)
 }

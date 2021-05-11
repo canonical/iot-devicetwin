@@ -21,9 +21,12 @@ package web
 
 import (
 	"encoding/json"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
 	"log"
 	"net/http"
+
+	"github.com/everactive/iot-devicetwin/pkg/messages"
+
+	"github.com/everactive/iot-devicetwin/domain"
 )
 
 // JSONHeader is the header for JSON responses
@@ -38,19 +41,19 @@ type StandardResponse struct {
 // SnapsResponse is the JSON response to list snaps
 type SnapsResponse struct {
 	StandardResponse
-	Snaps []domain.DeviceSnap `json:"snaps"`
+	Snaps []messages.DeviceSnap `json:"snaps"`
 }
 
 // DeviceResponse is the JSON response to get a device
 type DeviceResponse struct {
 	StandardResponse
-	Device domain.Device `json:"device"`
+	Device messages.Device `json:"device"`
 }
 
 // DevicesResponse is the JSON response to list devices
 type DevicesResponse struct {
 	StandardResponse
-	Devices []domain.Device `json:"devices"`
+	Devices []messages.Device `json:"devices"`
 }
 
 // ActionsResponse is the JSON response to list actions for a device
@@ -85,7 +88,7 @@ func formatStandardResponse(code, message string, w http.ResponseWriter) {
 }
 
 // formatSnapsResponse returns a JSON response from a snap list API method
-func formatSnapsResponse(snaps []domain.DeviceSnap, w http.ResponseWriter) {
+func formatSnapsResponse(snaps []messages.DeviceSnap, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", JSONHeader)
 	response := SnapsResponse{StandardResponse{}, snaps}
 
@@ -94,7 +97,7 @@ func formatSnapsResponse(snaps []domain.DeviceSnap, w http.ResponseWriter) {
 }
 
 // formatDeviceResponse returns a JSON response from a device get API method
-func formatDeviceResponse(device domain.Device, w http.ResponseWriter) {
+func formatDeviceResponse(device messages.Device, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", JSONHeader)
 	response := DeviceResponse{StandardResponse{}, device}
 
@@ -103,7 +106,7 @@ func formatDeviceResponse(device domain.Device, w http.ResponseWriter) {
 }
 
 // formatDevicesResponse returns a JSON response from a device list API method
-func formatDevicesResponse(devices []domain.Device, w http.ResponseWriter) {
+func formatDevicesResponse(devices []messages.Device, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", JSONHeader)
 	response := DevicesResponse{StandardResponse{}, devices}
 

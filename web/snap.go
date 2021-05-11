@@ -20,10 +20,14 @@
 package web
 
 import (
-	"github.com/gorilla/mux"
+	"encoding/json"
 	"io/ioutil"
-	"log"
+
 	"net/http"
+
+	"github.com/everactive/iot-devicetwin/pkg/messages"
+	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 )
 
 // SnapList is the API call to list snaps for a device
@@ -66,6 +70,39 @@ func (wb Service) SnapInstall(w http.ResponseWriter, r *http.Request) {
 	formatStandardResponse("", "", w)
 }
 
+// SnapServiceAction is the API call to start,stop, or restart a snap for a device
+func (wb Service) SnapServiceAction(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	if r == nil {
+		log.Error("error in json decoding for SnapServiceAction: nil request")
+		formatStandardResponse("SnapServiceAction", "invalid request", w)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil || len(body) == 0 {
+		body = []byte("{}")
+	}
+
+	var services *messages.SnapServiceMessage
+	err = json.Unmarshal(body, &services)
+
+	if err != nil {
+		log.Error("error in json decoding for SnapServiceAction: ", err)
+		formatStandardResponse("SnapServiceAction", "invalid json", w)
+		return
+	}
+
+	if err := wb.Controller.DeviceSnapServiceAction(vars["orgid"], vars["id"], vars["snap"], vars["action"], services); err != nil {
+		log.Println("Error requesting snap start for the device:", err)
+		formatStandardResponse("SnapServiceAction", "Error requesting snap start for the device", w)
+		return
+	}
+
+	formatStandardResponse("", "", w)
+}
+
 // SnapRemove is the API call to uninstall a snap for a device
 func (wb Service) SnapRemove(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -102,7 +139,12 @@ func (wb Service) SnapUpdateConf(w http.ResponseWriter, r *http.Request) {
 		formatStandardResponse("SnapSetConf", "Error requesting snap settings update for the device", w)
 		return
 	}
-	defer r.Body.Close()
+	defer func() {
+		err := r.Body.Close()
+		if err != nil {
+			log.Printf("Error trying r.Body.Close(): %+v", err)
+		}
+	}()
 
 	if err := wb.Controller.DeviceSnapConf(vars["orgid"], vars["id"], vars["snap"], string(body)); err != nil {
 		log.Println("Error requesting snap settings update for the device:", err)

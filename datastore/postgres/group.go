@@ -21,8 +21,9 @@ package postgres
 
 import (
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
 	"log"
+
+	"github.com/everactive/iot-devicetwin/datastore"
 )
 
 // createOrgGroupTable creates the database table and index for groups
@@ -59,7 +60,12 @@ func (db *DataStore) GroupList(orgID string) ([]datastore.Group, error) {
 		log.Printf("Error retrieving groups: %v\n", err)
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Printf("Error attempting to close rows: %+v", err)
+		}
+	}()
 
 	groups := []datastore.Group{}
 	for rows.Next() {
@@ -123,8 +129,7 @@ func (db *DataStore) GroupUnlinkDevice(orgID, name, deviceID string) error {
 	return err
 }
 
-// GroupGetDevices retrieves the devices for a group
-func (db *DataStore) GroupGetDevices(orgID, name string) ([]datastore.Device, error) {
+func (db *DataStore) getGroupDevices(sqlString, orgID, name string) ([]datastore.Device, error) {
 	// Get the group record
 	grp, err := db.GroupGet(orgID, name)
 	if err != nil {
@@ -132,12 +137,17 @@ func (db *DataStore) GroupGetDevices(orgID, name string) ([]datastore.Device, er
 	}
 
 	// Get the devices for the group
-	rows, err := db.Query(listGroupDeviceLinkSQL, orgID, grp.ID)
+	rows, err := db.Query(sqlString, orgID, grp.ID)
 	if err != nil {
 		log.Printf("Error retrieving devices for group: %v\n", err)
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Printf("Error attempting to close rows: %+v", err)
+		}
+	}()
 
 	devices := []datastore.Device{}
 	for rows.Next() {
@@ -152,31 +162,12 @@ func (db *DataStore) GroupGetDevices(orgID, name string) ([]datastore.Device, er
 	return devices, nil
 }
 
+// GroupGetDevices retrieves the devices for a group
+func (db *DataStore) GroupGetDevices(orgID, name string) ([]datastore.Device, error) {
+	return db.getGroupDevices(listGroupDeviceLinkSQL, orgID, name)
+}
+
 // GroupGetExcludedDevices retrieves the devices not in a group
 func (db *DataStore) GroupGetExcludedDevices(orgID, name string) ([]datastore.Device, error) {
-	// Get the group record
-	grp, err := db.GroupGet(orgID, name)
-	if err != nil {
-		return nil, fmt.Errorf("error finding group: %v", err)
-	}
-
-	// Get the devices for the group
-	rows, err := db.Query(listGroupDeviceExcludedLinkSQL, orgID, grp.ID)
-	if err != nil {
-		log.Printf("Error retrieving devices for group: %v\n", err)
-		return nil, err
-	}
-	defer rows.Close()
-
-	devices := []datastore.Device{}
-	for rows.Next() {
-		item := datastore.Device{}
-		err := rows.Scan(&item.ID, &item.Created, &item.LastRefresh, &item.OrganisationID, &item.DeviceID, &item.Brand, &item.Model, &item.SerialNumber, &item.StoreID, &item.DeviceKey, &item.Active)
-		if err != nil {
-			return nil, err
-		}
-		devices = append(devices, item)
-	}
-
-	return devices, nil
+	return db.getGroupDevices(listGroupDeviceExcludedLinkSQL, orgID, name)
 }

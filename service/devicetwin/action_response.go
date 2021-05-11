@@ -22,41 +22,44 @@ package devicetwin
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
 	"log"
+
+	"github.com/everactive/iot-devicetwin/pkg/messages"
+
+	"github.com/everactive/iot-devicetwin/datastore"
 )
 
 // actionDevice process the device info received from a device
 func (srv *Service) actionDevice(payload []byte) error {
 	// Parse the payload
-	d := domain.PublishDevice{}
+	d := messages.PublishDevice{}
 	if err := json.Unmarshal(payload, &d); err != nil {
 		log.Printf("Error in device action message: %v", err)
 		return fmt.Errorf("error in device action message: %v", err)
 	}
 
 	// Get the device details and create/update the device
-	_, err := srv.DB.DeviceGet(d.Result.DeviceID)
+	_, err := srv.DB.DeviceGet(d.Result.DeviceId)
 	if err == nil {
 		return fmt.Errorf("error in device action: device already exists")
 	}
 
 	// Device does not exit, so create
 	device := datastore.Device{
-		OrganisationID: d.Result.OrganizationID,
-		DeviceID:       d.Result.DeviceID,
+		OrganisationID: d.Result.OrgId,
+		DeviceID:       d.Result.DeviceId,
 		Brand:          d.Result.Brand,
 		Model:          d.Result.Model,
-		SerialNumber:   d.Result.SerialNumber,
+		SerialNumber:   d.Result.Serial,
 		DeviceKey:      d.Result.DeviceKey,
-		StoreID:        d.Result.StoreID,
+		StoreID:        d.Result.Store,
 	}
 	deviceID, err := srv.DB.DeviceCreate(device)
 	if err != nil {
 		return fmt.Errorf("error in device action: %v", err)
 	}
-	if d.Result.Version.DeviceID == "" {
+
+	if d.Result.Version == nil || d.Result.Version.DeviceId == "" {
 		// No device version information
 		return nil
 	}
@@ -66,8 +69,8 @@ func (srv *Service) actionDevice(payload []byte) error {
 		DeviceID:      deviceID,
 		Version:       d.Result.Version.Version,
 		Series:        d.Result.Version.Series,
-		OSID:          d.Result.Version.OSID,
-		OSVersionID:   d.Result.Version.OSVersionID,
+		OSID:          d.Result.Version.OsId,
+		OSVersionID:   d.Result.Version.OsVersionId,
 		OnClassic:     d.Result.Version.OnClassic,
 		KernelVersion: d.Result.Version.KernelVersion,
 	}
@@ -78,7 +81,7 @@ func (srv *Service) actionDevice(payload []byte) error {
 // actionList process the list of snaps received from a device
 func (srv *Service) actionList(clientID string, payload []byte) error {
 	// Parse the payload
-	p := domain.PublishSnaps{}
+	p := messages.PublishSnaps{}
 	if err := json.Unmarshal(payload, &p); err != nil {
 		log.Printf("Error in list action message: %v", err)
 		return fmt.Errorf("error in list action message: %v", err)
@@ -98,8 +101,8 @@ func (srv *Service) actionList(clientID string, payload []byte) error {
 	// Add the installed snaps
 	for _, s := range p.Result {
 		snap := datastore.DeviceSnap{
-			//Created       time.Time
-			//Modified      time.Time
+			// Created       time.Time
+			// Modified      time.Time
 			DeviceID:      device.ID,
 			Name:          s.Name,
 			InstalledSize: s.InstalledSize,
@@ -122,9 +125,9 @@ func (srv *Service) actionList(clientID string, payload []byte) error {
 }
 
 // actionForSnap process the snap response from an action (install, remove, refresh...)
-func (srv *Service) actionForSnap(clientID, action string, payload []byte) (string, error) {
+func (srv *Service) actionForSnap(_, action string, payload []byte) (string, error) {
 	// Parse the payload
-	p := domain.PublishSnapTask{}
+	p := messages.PublishSnapTask{}
 	if err := json.Unmarshal(payload, &p); err != nil {
 		log.Printf("Error in %s action message: %v", action, err)
 		return "", fmt.Errorf("error in %s action message: %v", action, err)
@@ -137,7 +140,7 @@ func (srv *Service) actionForSnap(clientID, action string, payload []byte) (stri
 // actionConf process the snap response from a conf action
 func (srv *Service) actionConf(clientID string, payload []byte) error {
 	// Parse the payload
-	p := domain.PublishSnap{}
+	p := messages.PublishSnap{}
 	if err := json.Unmarshal(payload, &p); err != nil {
 		log.Printf("Error in conf action message: %v", err)
 		return fmt.Errorf("error in conf action message: %v", err)
@@ -151,8 +154,8 @@ func (srv *Service) actionConf(clientID string, payload []byte) error {
 
 	// Create/update the installed snap details with the current config
 	snap := datastore.DeviceSnap{
-		//Created       time.Time
-		//Modified      time.Time
+		// Created       time.Time
+		// Modified      time.Time
 		DeviceID:      device.ID,
 		Name:          p.Result.Name,
 		InstalledSize: p.Result.InstalledSize,
@@ -172,7 +175,8 @@ func (srv *Service) actionConf(clientID string, payload []byte) error {
 // actionServer process the response from a server action
 func (srv *Service) actionServer(clientID string, payload []byte) error {
 	// Parse the payload
-	p := domain.PublishDeviceVersion{}
+	// p := domain.PublishDeviceVersion{}
+	p := messages.PublishDeviceVersion{}
 	if err := json.Unmarshal(payload, &p); err != nil {
 		log.Printf("Error in server action message: %v", err)
 		return fmt.Errorf("error in server action message: %v", err)
@@ -189,11 +193,35 @@ func (srv *Service) actionServer(clientID string, payload []byte) error {
 		DeviceID:      device.ID,
 		Version:       p.Result.Version,
 		Series:        p.Result.Series,
-		OSID:          p.Result.OSID,
-		OSVersionID:   p.Result.OSVersionID,
+		OSID:          p.Result.OsId,
+		OSVersionID:   p.Result.OsVersionId,
 		OnClassic:     p.Result.OnClassic,
 		KernelVersion: p.Result.KernelVersion,
 	}
 
 	return srv.DB.DeviceVersionUpsert(dv)
+}
+
+// actionUnregister process the response from an unregister action
+func (srv *Service) actionUnregister(clientID string, payload []byte) error {
+	// Parse the payload
+	p := messages.PublishDevice{}
+	if err := json.Unmarshal(payload, &p); err != nil {
+		log.Printf("Error in unregister action message: %v", err)
+		return fmt.Errorf("error in unregister action message: %v", err)
+	}
+
+	// Get the device details
+	device, err := srv.DB.DeviceGet(clientID)
+	if err != nil {
+		return fmt.Errorf("cannot find device with ID `%s`", clientID)
+	}
+
+	// Delete the device twin from the database
+	_, err = srv.DeviceDelete(device.DeviceID)
+	if err != nil {
+		return fmt.Errorf("error in unregister action when deleting device from database: %v", err)
+	}
+
+	return nil
 }

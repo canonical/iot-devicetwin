@@ -1,7 +1,6 @@
-FROM golang:1.12 as builder1
-COPY . ./src/github.com/CanonicalLtd/iot-devicetwin
-WORKDIR /go/src/github.com/CanonicalLtd/iot-devicetwin
-RUN ./get-deps.sh
+FROM golang:1.16 as builder1
+COPY . /iot-devicetwin
+WORKDIR /iot-devicetwin
 RUN CGO_ENABLED=1 GOOS=linux go build -a -o /go/bin/devicetwin -ldflags='-extldflags "-static"' cmd/devicetwin/main.go
 
 # Copy the built applications to the docker image

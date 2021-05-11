@@ -22,8 +22,9 @@ package controller
 import (
 	"testing"
 
-	"github.com/CanonicalLtd/iot-devicetwin/service/devicetwin"
-	"github.com/CanonicalLtd/iot-devicetwin/service/mqtt"
+	"github.com/everactive/iot-devicetwin/pkg/messages"
+	"github.com/everactive/iot-devicetwin/service/devicetwin"
+	"github.com/everactive/iot-devicetwin/service/mqtt"
 )
 
 func TestService_DeviceSnaps(t *testing.T) {
@@ -165,6 +166,37 @@ func TestService_DeviceSnapList(t *testing.T) {
 			srv := NewService(settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{})
 			if err := srv.DeviceSnapList(tt.args.orgID, tt.args.clientID); (err != nil) != tt.wantErr {
 				t.Errorf("Service.DeviceSnapList() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestService_DeviceSnapServiceAction(t *testing.T) {
+
+	type args struct {
+		orgID    string
+		clientID string
+		snap     string
+		action   string
+		services *messages.SnapServiceMessage
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"valid start", args{"abc", "a111", "helloworld", "start", &messages.SnapServiceMessage{Services: []string{"hello_service"}}}, false},
+		{"valid start multiple snap services", args{"abc", "a111", "helloworld", "start", &messages.SnapServiceMessage{Services: []string{"hello_service", "goodbye_service"}}}, false},
+		{"valid stop", args{"abc", "a111", "helloworld", "stop", &messages.SnapServiceMessage{Services: []string{"hello_service"}}}, false},
+		{"valid stop multiple snap services", args{"abc", "a111", "helloworld", "stop", &messages.SnapServiceMessage{Services: []string{"hello_service", "goodbyte service"}}}, false},
+		{"valid restart", args{"abc", "a111", "helloworld", "restart", &messages.SnapServiceMessage{Services: []string{"hello_service"}}}, false},
+		{"valid restart multiple snap services", args{"abc", "a111", "helloworld", "restart", &messages.SnapServiceMessage{Services: []string{"hello_service", "goodbyte service"}}}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := NewService(settings, &mqtt.MockConnect{}, &devicetwin.MockDeviceTwin{})
+			if err := srv.DeviceSnapServiceAction(tt.args.orgID, tt.args.clientID, tt.args.snap, tt.args.action, tt.args.services); (err != nil) != tt.wantErr {
+				t.Errorf("Service.DeviceSnapServiceAction() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

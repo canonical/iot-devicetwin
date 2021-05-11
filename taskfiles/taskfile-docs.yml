@@ -1,0 +1,19 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task: build-docker-image
+      - task: build-docs
+  build-docker-image:
+    desc: Build the image that generates the documentation for the API spec
+    cmds:
+      - cd ../docker && docker build -t asyncapi-util -f ./asyncapi-docs.dockerfile .
+  build-docs:
+    cmds:
+      - mkdir -p ../asyncapi-docs
+      - |
+        docker run -v ${PWD}/asyncapi.yaml:/api/asyncapi.yaml \
+         -v ${PWD}/asyncapi-docs:/asyncapi-docs \
+         -v ${PWD}/schemas:/api/schemas \
+        asyncapi-util

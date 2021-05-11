@@ -21,33 +21,39 @@ package devicetwin
 
 import (
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
 	"log"
+
+	"github.com/everactive/iot-devicetwin/pkg/actions"
+
+	"github.com/everactive/iot-devicetwin/pkg/messages"
+
+	"github.com/everactive/iot-devicetwin/config"
+	"github.com/everactive/iot-devicetwin/datastore"
+	"github.com/everactive/iot-devicetwin/domain"
 )
 
 // DeviceTwin interface for the service
 type DeviceTwin interface {
-	HealthHandler(payload domain.Health) error
+	HealthHandler(payload messages.Health) error
 	ActionResponse(clientID, actionID, action string, payload []byte) error // process a response from a device
 
-	ActionCreate(orgID, deviceID string, act domain.SubscribeAction) error
+	ActionCreate(orgID, deviceID string, act messages.SubscribeAction) error
 	ActionUpdate(actionID, status, message string) error
 	ActionList(orgID, deviceID string) ([]domain.Action, error)
 
-	DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, error)
+	DeviceSnaps(orgID, clientID string) ([]messages.DeviceSnap, error)
 
-	DeviceList(orgID string) ([]domain.Device, error)
-	DeviceGet(orgID, clientID string) (domain.Device, error)
+	DeviceList(orgID string) ([]messages.Device, error)
+	DeviceGet(orgID, clientID string) (messages.Device, error)
+	DeviceDelete(deviceID string) (string, error)
 
 	GroupCreate(orgID, name string) error
 	GroupList(orgID string) ([]domain.Group, error)
 	GroupGet(orgID, name string) (domain.Group, error)
 	GroupLinkDevice(orgID, name, clientID string) error
 	GroupUnlinkDevice(orgID, name, clientID string) error
-	GroupGetDevices(orgID, name string) ([]domain.Device, error)
-	GroupGetExcludedDevices(orgID, name string) ([]domain.Device, error)
+	GroupGetDevices(orgID, name string) ([]messages.Device, error)
+	GroupGetExcludedDevices(orgID, name string) ([]messages.Device, error)
 }
 
 // Service implementation of the identity use cases
@@ -65,16 +71,16 @@ func NewService(settings *config.Settings, db datastore.DataStore) *Service {
 }
 
 // HealthHandler handles a health update from a device
-func (srv *Service) HealthHandler(payload domain.Health) error {
+func (srv *Service) HealthHandler(payload messages.Health) error {
 	// Check that we have the device
-	_, err := srv.DB.DeviceGet(payload.DeviceID)
+	_, err := srv.DB.DeviceGet(payload.DeviceId)
 	if err != nil {
 		// Request the device details to be published as we don't have it
 		return err
 	}
 
 	// Update the last refresh on the device
-	return srv.DB.DevicePing(payload.DeviceID, payload.Refresh)
+	return srv.DB.DevicePing(payload.DeviceId, payload.Refresh)
 }
 
 // ActionResponse handles action response from a device
@@ -87,17 +93,19 @@ func (srv *Service) ActionResponse(clientID, actionID, action string, payload []
 
 	// Act based on the message action
 	switch action {
-	case "device":
+	case actions.Device:
 		err = srv.actionDevice(payload)
-	case "list":
+	case actions.List:
 		err = srv.actionList(clientID, payload)
-	case "install", "remove", "refresh", "revert", "enable", "disable", "setconf":
+	case actions.Install, actions.Remove, actions.Refresh, actions.Revert, actions.Enable, actions.Disable, actions.SetConf, actions.Start, actions.Stop, actions.Restart:
 		message, err = srv.actionForSnap(clientID, action, payload)
-	case "conf", "info":
+	case actions.Conf, actions.Info:
 		err = srv.actionConf(clientID, payload)
-	//case "ack":
-	case "server":
+	// case "ack":
+	case actions.Server:
 		err = srv.actionServer(clientID, payload)
+	case actions.Unregister:
+		err = srv.actionUnregister(clientID, payload)
 	default:
 		return fmt.Errorf("error unhandled action `%s`", action)
 	}

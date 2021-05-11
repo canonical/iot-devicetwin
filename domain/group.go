@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Package domain is to be determined
 package domain
 
 // Group is the definition of a group of devices

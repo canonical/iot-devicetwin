@@ -20,8 +20,9 @@
 package postgres
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
 	"log"
+
+	"github.com/everactive/iot-devicetwin/datastore"
 )
 
 // createDeviceSnapTable creates the database table and index for snaps
@@ -52,7 +53,12 @@ func (db *DataStore) DeviceSnapList(deviceID int64) ([]datastore.DeviceSnap, err
 		log.Printf("Error retrieving device snaps: %v\n", err)
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Printf("Error attempting to close rows: %+v", err)
+		}
+	}()
 
 	snaps := []datastore.DeviceSnap{}
 	for rows.Next() {

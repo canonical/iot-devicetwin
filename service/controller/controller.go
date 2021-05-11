@@ -22,14 +22,19 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
-	"github.com/CanonicalLtd/iot-devicetwin/service/devicetwin"
-	"github.com/CanonicalLtd/iot-devicetwin/service/mqtt"
-	MQTT "github.com/eclipse/paho.mqtt.golang"
-	"github.com/segmentio/ksuid"
 	"log"
 	"strings"
+
+	"github.com/everactive/iot-devicetwin/pkg/actions"
+
+	"github.com/everactive/iot-devicetwin/pkg/messages"
+
+	MQTT "github.com/eclipse/paho.mqtt.golang"
+	"github.com/everactive/iot-devicetwin/config"
+	"github.com/everactive/iot-devicetwin/domain"
+	"github.com/everactive/iot-devicetwin/service/devicetwin"
+	"github.com/everactive/iot-devicetwin/service/mqtt"
+	"github.com/segmentio/ksuid"
 )
 
 // Controller interface for the service
@@ -39,25 +44,32 @@ type Controller interface {
 	ActionHandler(client MQTT.Client, msg MQTT.Message)
 
 	// Passthrough to the device twin service
-	DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, error)
-	DeviceList(orgID string) ([]domain.Device, error)
-	DeviceGet(orgID, clientID string) (domain.Device, error)
+	DeviceSnaps(orgID, clientID string) ([]messages.DeviceSnap, error)
+	DeviceList(orgID string) ([]messages.Device, error)
+	DeviceDelete(deviceID string) error
+	DeviceGet(orgID, clientID string) (messages.Device, error)
+	DeviceUnregister(orgID, clientID string) error
 	GroupCreate(orgID, name string) error
 	GroupList(orgID string) ([]domain.Group, error)
 	GroupGet(orgID, name string) (domain.Group, error)
 	GroupLinkDevice(orgID, name, clientID string) error
 	GroupUnlinkDevice(orgID, name, clientID string) error
-	GroupGetDevices(orgID, name string) ([]domain.Device, error)
-	GroupGetExcludedDevices(orgID, name string) ([]domain.Device, error)
+	GroupGetDevices(orgID, name string) ([]messages.Device, error)
+	GroupGetExcludedDevices(orgID, name string) ([]messages.Device, error)
 
 	// Actions on a device
 	DeviceSnapList(orgID, clientID string) error
 	DeviceSnapInstall(orgID, clientID, snap string) error
+	DeviceSnapServiceAction(orgID, clientID, snap, action string, services *messages.SnapServiceMessage) error
 	DeviceSnapRemove(orgID, clientID, snap string) error
 	DeviceSnapUpdate(orgID, clientID, snap, action string) error
 	DeviceSnapConf(orgID, clientID, snap, settings string) error
 	ActionList(orgID, clientID string) ([]domain.Action, error)
 }
+
+const (
+	clientIDMQTTTopicPartsCount = 4
+)
 
 // Service implementation of the devicetwin service use cases
 type Service struct {
@@ -110,7 +122,7 @@ func (srv *Service) ActionHandler(client MQTT.Client, msg MQTT.Message) {
 	log.Printf("Action response from %s", clientID)
 
 	// Parse the body
-	a := domain.PublishResponse{}
+	a := messages.PublishResponse{}
 	if err := json.Unmarshal(msg.Payload(), &a); err != nil {
 		log.Printf("Error in action message: %v", err)
 		return
@@ -118,12 +130,12 @@ func (srv *Service) ActionHandler(client MQTT.Client, msg MQTT.Message) {
 
 	// Check if there is an error and handle it
 	if !a.Success {
-		log.Printf("Error in action `%s`: (%s) %s", a.Action, a.ID, a.Message)
+		log.Printf("Error in action `%s`: (%s) %s", a.Action, a.Id, a.Message)
 		return
 	}
 
 	// Handle the action
-	if err := srv.DeviceTwin.ActionResponse(clientID, a.ID, a.Action, msg.Payload()); err != nil {
+	if err := srv.DeviceTwin.ActionResponse(clientID, a.Id, a.Action, msg.Payload()); err != nil {
 		log.Printf("Error with action `%s`: %v", a.Action, err)
 	}
 }
@@ -134,15 +146,15 @@ func (srv *Service) HealthHandler(client MQTT.Client, msg MQTT.Message) {
 	log.Printf("Health update from %s", clientID)
 
 	// Parse the body
-	h := domain.Health{}
+	h := messages.Health{}
 	if err := json.Unmarshal(msg.Payload(), &h); err != nil {
 		log.Printf("Error in health message: %v", err)
 		return
 	}
 
 	// Check that the client ID matches
-	if clientID != h.DeviceID {
-		log.Printf("Client/device ID mismatch: %s and %s", clientID, h.DeviceID)
+	if clientID != h.DeviceId {
+		log.Printf("Client/device ID mismatch: %s and %s", clientID, h.DeviceId)
 		return
 	}
 
@@ -153,18 +165,18 @@ func (srv *Service) HealthHandler(client MQTT.Client, msg MQTT.Message) {
 	}
 
 	// We don't have the device details, so request them from the device
-	act := domain.SubscribeAction{
-		Action: "device",
+	act := messages.SubscribeAction{
+		Action: actions.Device,
 	}
-	if err := srv.triggerActionOnDevice(h.OrganizationID, h.DeviceID, act); err != nil {
+	if err := srv.triggerActionOnDevice(h.OrgId, h.DeviceId, act); err != nil {
 		log.Printf("Triggering action: %v", err)
 	}
 
 	// Get the snaps from the device
-	act = domain.SubscribeAction{
-		Action: "list",
+	act = messages.SubscribeAction{
+		Action: actions.List,
 	}
-	if err := srv.triggerActionOnDevice(h.OrganizationID, h.DeviceID, act); err != nil {
+	if err := srv.triggerActionOnDevice(h.OrgId, h.DeviceId, act); err != nil {
 		log.Printf("Triggering action: %v", err)
 	}
 }
@@ -172,7 +184,7 @@ func (srv *Service) HealthHandler(client MQTT.Client, msg MQTT.Message) {
 // getClientID sets the client ID from the topic
 func getClientID(msg MQTT.Message) string {
 	parts := strings.Split(msg.Topic(), "/")
-	if len(parts) != 3 {
+	if len(parts) != clientIDMQTTTopicPartsCount-1 {
 		log.Printf("Error in health message: expected 4 parts, got %d", len(parts))
 		return ""
 	}
@@ -180,10 +192,10 @@ func getClientID(msg MQTT.Message) string {
 }
 
 // triggerActionOnDevice triggers an action on the device via MQTT
-func (srv *Service) triggerActionOnDevice(orgID, deviceID string, act domain.SubscribeAction) error {
+func (srv *Service) triggerActionOnDevice(orgID, deviceID string, act messages.SubscribeAction) error {
 	// Generate a request ID
 	id := ksuid.New()
-	act.ID = id.String()
+	act.Id = id.String()
 
 	// Serialize the action
 	data, err := serializePayload(act)
@@ -204,6 +216,6 @@ func (srv *Service) triggerActionOnDevice(orgID, deviceID string, act domain.Sub
 	return srv.DeviceTwin.ActionCreate(orgID, deviceID, act)
 }
 
-func serializePayload(act domain.SubscribeAction) ([]byte, error) {
+func serializePayload(act messages.SubscribeAction) ([]byte, error) {
 	return json.Marshal(act)
 }

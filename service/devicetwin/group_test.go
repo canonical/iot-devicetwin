@@ -20,9 +20,10 @@
 package devicetwin
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore/memory"
 	"testing"
+
+	"github.com/everactive/iot-devicetwin/config"
+	"github.com/everactive/iot-devicetwin/datastore/memory"
 )
 
 func TestService_GroupGetExcludedDevices(t *testing.T) {
@@ -40,15 +41,16 @@ func TestService_GroupGetExcludedDevices(t *testing.T) {
 		{"invalid", args{"abc", "does-not-exist"}, 0, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		localtt := tt
+		t.Run(localtt.name, func(t *testing.T) {
 			srv := NewService(config.TestConfig(), memory.NewStore())
-			got, err := srv.GroupGetExcludedDevices(tt.args.orgID, tt.args.name)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Service.GroupGetExcludedDevices() error = %v, wantErr %v", err, tt.wantErr)
+			got, err := srv.GroupGetExcludedDevices(localtt.args.orgID, localtt.args.name)
+			if (err != nil) != localtt.wantErr {
+				t.Errorf("Service.GroupGetExcludedDevices() error = %v, wantErr %v", err, localtt.wantErr)
 				return
 			}
-			if len(got) != tt.want {
-				t.Errorf("Service.GroupGetExcludedDevices() = %v, want %v", len(got), tt.want)
+			if len(got) != localtt.want {
+				t.Errorf("Service.GroupGetExcludedDevices() = %v, want %v", len(got), localtt.want)
 			}
 		})
 	}

@@ -54,3 +54,11 @@ const pingDeviceSQL = `
 update device
 set lastrefresh=$2
 where device_id=$1`
+
+const deleteDeviceSQL = `
+delete from device where device_id=$1
+`
+
+const deleteDeviceSnapsSQL = `
+delete from device_snap where device_id=$1
+`

@@ -17,11 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Package mqtt is for testing MQTT clients and logic
 package mqtt
 
 import (
-	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"time"
+
+	MQTT "github.com/eclipse/paho.mqtt.golang"
+)
+
+const (
+	mockMessageID = 1000
 )
 
 // MockClient mocks the MQTT client
@@ -48,7 +54,6 @@ func (cli *MockClient) Connect() MQTT.Token {
 // Disconnect mocks client close
 func (cli *MockClient) Disconnect(quiesce uint) {
 	cli.open = false
-	return
 }
 
 // Publish mocks a publish message
@@ -73,7 +78,6 @@ func (cli *MockClient) Unsubscribe(topics ...string) MQTT.Token {
 
 // AddRoute mocks routing
 func (cli *MockClient) AddRoute(topic string, callback MQTT.MessageHandler) {
-	return
 }
 
 // OptionsReader mocks the options reader (badly)
@@ -146,7 +150,7 @@ func (m *MockMessage) Topic() string {
 
 // MessageID mocks the message ID
 func (m *MockMessage) MessageID() uint16 {
-	return 1000
+	return mockMessageID
 }
 
 // Payload mocks the payload retrieval

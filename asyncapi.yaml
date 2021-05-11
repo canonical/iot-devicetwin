@@ -1,0 +1,76 @@
+asyncapi: 2.0.0
+info:
+  title: Device Management Service Agent API
+  version: '0.0.1'
+  description: |
+    This is the asynchronous API between an on-device agent and the Device Management Service controlling it
+
+channels:
+  devices/health/{deviceClientId}:
+    description: |
+      The health of the device, published periodically
+    publish:
+      message:
+        $ref: '#/components/messages/health'
+    parameters:
+      deviceClientId:
+        $ref: '#/components/parameters/deviceClientId'
+  devices/pub/{deviceClientId}:
+    description: |
+      Responses to actions
+    publish:
+      message:
+        oneOf:
+          - $ref: '#/components/messages/publishDevice'
+          - $ref: '#/components/messages/publishDeviceVersion'
+          - $ref: '#/components/messages/publishResponse'
+          - $ref: '#/components/messages/publishSnap'
+          - $ref: '#/components/messages/publishSnaps'
+    parameters:
+      deviceClientId:
+        $ref: '#/components/parameters/deviceClientId'
+  devices/sub/{deviceClientId}:
+    description: |
+      Device actions from the device management service
+    publish:
+      message:
+          $ref: '#/components/messages/publishSnaps'
+    parameters:
+      deviceClientId:
+        $ref: '#/components/parameters/deviceClientId'
+
+components:
+  messages:
+    health:
+      summary: The health of the device
+      payload:
+        $ref: './schemas/schemas.json#/definitions/health'
+    subscribeAction:
+      summary: An action from the device management service for the device to take
+      payload:
+        $ref: './schemas/schemas.json#/definitions/subscribeAction'
+    publishDevice:
+      summary: The device info response
+      payload:
+        $ref: './schemas/schemas.json#/definitions/publishDevice'
+    publishDeviceVersion:
+      summary: The device version info response
+      payload:
+        $ref: './schemas/schemas.json#/definitions/publishDeviceVersion'
+    publishResponse:
+      summary: The generic publish response
+      payload:
+        $ref: './schemas/schemas.json#/definitions/publishResponse'
+    publishSnap:
+      summary: The publishSnap response
+      payload:
+        $ref: './schemas/schemas.json#/definitions/publishSnap'
+    publishSnaps:
+      summary: The publishSnaps response
+      payload:
+        $ref: './schemas/schemas.json#/definitions/publishSnaps'
+
+  parameters:
+    deviceClientId:
+      schema:
+        type: string

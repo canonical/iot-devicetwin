@@ -21,18 +21,25 @@ package web
 
 import (
 	"encoding/json"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
-	"github.com/gorilla/mux"
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/everactive/iot-devicetwin/domain"
+	"github.com/gorilla/mux"
 )
 
 // GroupCreate is the API call to create a group
 func (wb Service) GroupCreate(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	defer r.Body.Close()
+	defer func() {
+		err := r.Body.Close()
+		if err != nil {
+			log.Printf("Error trying r.Body.Close(): %+v", err)
+		}
+	}()
+
 	group, err := parseGroupRequest(r.Body)
 	if err != nil {
 		log.Printf("Error parsing the group for organization `%s`: %v", vars["orgid"], err)

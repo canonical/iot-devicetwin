@@ -20,9 +20,10 @@
 package devicetwin
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore/memory"
 	"testing"
+
+	"github.com/everactive/iot-devicetwin/config"
+	"github.com/everactive/iot-devicetwin/datastore/memory"
 )
 
 func TestService_DeviceSnaps(t *testing.T) {
@@ -41,19 +42,20 @@ func TestService_DeviceSnaps(t *testing.T) {
 		{"invalid-orgid", args{"invalid", "a111"}, 0, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		localtt := tt
+		t.Run(localtt.name, func(t *testing.T) {
 			srv := NewService(config.TestConfig(), memory.NewStore())
-			got, err := srv.DeviceSnaps(tt.args.orgID, tt.args.clientID)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Service.DeviceSnaps() error = %v, wantErr %v", err, tt.wantErr)
+			got, err := srv.DeviceSnaps(localtt.args.orgID, localtt.args.clientID)
+			if (err != nil) != localtt.wantErr {
+				t.Errorf("Service.DeviceSnaps() error = %v, wantErr %v", err, localtt.wantErr)
 				return
 			}
-			if tt.wantErr {
+			if localtt.wantErr {
 				return
 			}
 
-			if len(got) != tt.want {
-				t.Errorf("Service.DeviceSnaps() = %v, want %v", len(got), tt.want)
+			if len(got) != localtt.want {
+				t.Errorf("Service.DeviceSnaps() = %v, want %v", len(got), localtt.want)
 			}
 		})
 	}

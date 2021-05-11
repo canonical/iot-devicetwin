@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Package datastore is the types and interface for the device datastore
 package datastore
 
 import "time"

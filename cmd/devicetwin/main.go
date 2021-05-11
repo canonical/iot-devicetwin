@@ -20,16 +20,30 @@
 package main
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/service/controller"
-	"github.com/CanonicalLtd/iot-devicetwin/service/devicetwin"
-	"github.com/CanonicalLtd/iot-devicetwin/service/factory"
-	"github.com/CanonicalLtd/iot-devicetwin/service/mqtt"
-	"github.com/CanonicalLtd/iot-devicetwin/web"
-	"log"
+	"os"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/everactive/iot-devicetwin/config"
+	"github.com/everactive/iot-devicetwin/service/controller"
+	"github.com/everactive/iot-devicetwin/service/devicetwin"
+	"github.com/everactive/iot-devicetwin/service/factory"
+	"github.com/everactive/iot-devicetwin/service/mqtt"
+	"github.com/everactive/iot-devicetwin/web"
 )
 
 func main() {
+	logLevel := os.Getenv("LOG_LEVEL")
+	if len(logLevel) > 0 {
+		l, err := log.ParseLevel(logLevel)
+		if err != nil {
+			log.SetLevel(log.TraceLevel)
+			log.Tracef("LOG_LEVEL environment variable is set to %s, could not parse to a valid log level. Using trace logging.", logLevel)
+		} else {
+			log.SetLevel(l)
+			log.Infof("Using LOG_LEVEL %s", logLevel)
+		}
+	}
 	// Set up the dependency chain
 	settings := config.ParseArgs()
 	db, err := factory.CreateDataStore(settings)

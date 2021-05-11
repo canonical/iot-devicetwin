@@ -17,12 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Package postgres is the Datastore implementation for Postgres
 package postgres
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq" // postgresql driver
 	"log"
+
+	_ "github.com/lib/pq" // postgresql driver
 )
 
 // DataStore is the postgreSQL implementation of a data store

@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
+	"github.com/everactive/iot-devicetwin/datastore"
 )
 
 func TestStore_DeviceGet(t *testing.T) {
@@ -37,7 +37,7 @@ func TestStore_DeviceGet(t *testing.T) {
 		wantErr bool
 	}{
 		{"valid", args{"b222"}, false},
-		{"invalid", args{"does-not-exist"}, true},
+		{invalidString, args{"does-not-exist"}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -68,7 +68,7 @@ func TestStore_DevicePing(t *testing.T) {
 		wantErr bool
 	}{
 		{"valid", args{"a111", time.Now()}, false},
-		{"invalid", args{"does-not-exist", time.Now()}, true},
+		{invalidString, args{"does-not-exist", time.Now()}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -217,14 +217,14 @@ func TestStore_DeviceVersionWorkflow(t *testing.T) {
 
 			// Update the record
 			tt.args.dv.OSVersionID = "changed"
-			if err := mem.DeviceVersionUpsert(tt.args.dv); err != nil {
+			if err = mem.DeviceVersionUpsert(tt.args.dv); err != nil {
 				t.Errorf("Store.DeviceVersionUpsert() error update = %v", err)
 			}
 
 			// Get the updated record
-			dv2, err := mem.DeviceVersionGet(tt.args.dv.DeviceID)
-			if err != nil {
-				t.Errorf("Store.DeviceVersionGet() error = %v", err)
+			dv2, err2 := mem.DeviceVersionGet(tt.args.dv.DeviceID)
+			if err2 != nil {
+				t.Errorf("Store.DeviceVersionGet() error = %v", err2)
 			}
 			if dv2.OSVersionID != tt.args.dv.OSVersionID {
 				t.Errorf("Store.DeviceVersionGet() OS version updated = %v, want %v", dv2.OSVersionID, tt.args.dv.OSVersionID)
@@ -281,7 +281,7 @@ func TestStore_DeviceList(t *testing.T) {
 	}{
 		{"valid", "abc", 3, false},
 		{"valid-no-devices", "none", 0, false},
-		{"valid", "invalid", 0, true},
+		{"valid", invalidString, 0, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -311,7 +311,7 @@ func TestStore_GroupCreate(t *testing.T) {
 	}{
 		{"valid", args{"abc", "test-group"}, 2, false},
 		{"valid-exists", args{"abc", "workshop"}, 0, true},
-		{"invalid", args{"invalid", "test-group"}, 0, true},
+		{invalidString, args{invalidString, "test-group"}, 0, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -342,16 +342,16 @@ func TestStore_GroupDeviceWorkflow(t *testing.T) {
 	}{
 		{"valid", args{"abc", "workshop", "c333"}, 2, false},
 		{"valid-exists", args{"abc", "workshop", "a111"}, 1, false},
-		{"invalid-org", args{"invalid", "workshop", "c333"}, 0, true},
-		{"invalid-group", args{"abc", "invalid", "c333"}, 0, true},
-		{"invalid-device", args{"abc", "workshop", "invalid"}, 0, true},
+		{"invalid-org", args{invalidString, "workshop", "c333"}, 0, true},
+		{"invalid-group", args{"abc", invalidString, "c333"}, 0, true},
+		{"invalid-device", args{"abc", "workshop", invalidString}, 0, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mem := NewStore()
 			// Get the group
 			_, err := mem.GroupGet(tt.args.orgID, tt.args.name)
-			if (err != nil) != tt.wantErr && tt.args.device != "invalid" {
+			if (err != nil) != tt.wantErr && tt.args.device != invalidString {
 				t.Errorf("Store.GroupGet() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -364,10 +364,10 @@ func TestStore_GroupDeviceWorkflow(t *testing.T) {
 			}
 
 			// Get devices for the group
-			if tt.args.device != "invalid" {
-				devices, err := mem.GroupGetDevices(tt.args.orgID, tt.args.name)
-				if (err != nil) != tt.wantErr {
-					t.Errorf("Store.GroupGetDevices() error = %v, wantErr %v", err, tt.wantErr)
+			if tt.args.device != invalidString {
+				devices, err2 := mem.GroupGetDevices(tt.args.orgID, tt.args.name)
+				if (err2 != nil) != tt.wantErr {
+					t.Errorf("Store.GroupGetDevices() error = %v, wantErr %v", err2, tt.wantErr)
 					return
 				}
 				if len(devices) != tt.count {
@@ -384,14 +384,14 @@ func TestStore_GroupDeviceWorkflow(t *testing.T) {
 			}
 
 			// Get devices for the group
-			if tt.args.device != "invalid" {
+			if tt.args.device != invalidString {
 				devices2, err := mem.GroupGetDevices(tt.args.orgID, tt.args.name)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("Store.GroupGetDevices() error = %v, wantErr %v", err, tt.wantErr)
 					return
 				}
 				if tt.count > 0 {
-					tt.count = tt.count - 1
+					tt.count--
 				}
 				if len(devices2) != tt.count {
 					t.Errorf("Store.GroupGetDevices() count = %v, expected %v", len(devices2), tt.count)

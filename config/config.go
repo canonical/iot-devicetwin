@@ -27,7 +27,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/CanonicalLtd/iot-identity/service/cert"
+	"github.com/everactive/iot-identity/service/cert"
 )
 
 // Default settings
@@ -125,6 +125,7 @@ func ParseArgs() *Settings {
 
 func getSecret(p string) (string, error) {
 	// Attempt to open the secrets file
+	// nolint: gosec
 	source, err := ioutil.ReadFile(p)
 	if err == nil {
 		return string(source), nil
@@ -143,16 +144,20 @@ func getSecret(p string) (string, error) {
 // readCerts reads the certificates from the file system
 func readCerts(certsDir string) (MQTTConnect, error) {
 	c := MQTTConnect{}
+
+	// nolint: gosec
 	rootCA, err := ioutil.ReadFile(path.Join(certsDir, rootCA))
 	if err != nil {
 		return c, err
 	}
 
+	// nolint: gosec
 	certFile, err := ioutil.ReadFile(path.Join(certsDir, clientCert))
 	if err != nil {
 		return c, err
 	}
 
+	// nolint: gosec
 	key, err := ioutil.ReadFile(path.Join(certsDir, clientKey))
 
 	c.RootCA = rootCA

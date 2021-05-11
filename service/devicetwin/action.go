@@ -20,17 +20,20 @@
 package devicetwin
 
 import (
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
 	"time"
+
+	"github.com/everactive/iot-devicetwin/pkg/messages"
+
+	"github.com/everactive/iot-devicetwin/datastore"
+	"github.com/everactive/iot-devicetwin/domain"
 )
 
 // ActionCreate logs an action
-func (srv *Service) ActionCreate(orgID, deviceID string, action domain.SubscribeAction) error {
+func (srv *Service) ActionCreate(orgID, deviceID string, action messages.SubscribeAction) error {
 	act := datastore.Action{
 		OrganizationID: orgID,
 		DeviceID:       deviceID,
-		ActionID:       action.ID,
+		ActionID:       action.Id,
 		Action:         action.Action,
 		Status:         "requested",
 		Created:        time.Now(),

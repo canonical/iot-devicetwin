@@ -20,9 +20,10 @@
 package web
 
 import (
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 // DeviceGet is the API call to get a device
@@ -51,4 +52,45 @@ func (wb Service) DeviceList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	formatDevicesResponse(devices, w)
+}
+
+// DeviceDelete is the API call to delete devices
+func (wb Service) DeviceDelete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	err := wb.Controller.DeviceDelete(vars["id"])
+	if err != nil {
+		log.Printf("Error deleting the device `%s`: %v", vars["id"], err)
+		formatStandardResponse("DeviceDelete", "Error deleting device", w)
+		return
+	}
+
+	w.Header().Set("Content-Type", JSONHeader)
+	response := StandardResponse{
+		Message: "device deleted",
+	}
+
+	// Encode the response as JSON
+	encodeResponse(w, response)
+}
+
+// DeviceUnregister is the API call to send unregister event to the device
+func (wb Service) DeviceUnregister(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	err := wb.Controller.DeviceUnregister(vars["orgid"], vars["id"])
+	if err != nil {
+		log.Printf("Error unregistering the device `%s`: %v", vars["id"], err)
+		formatStandardResponse("DeviceUnregister", "Error unregistering device", w)
+		return
+	}
+
+	w.WriteHeader(http.StatusAccepted)
+	w.Header().Set("Content-Type", JSONHeader)
+	response := StandardResponse{
+		Message: "device unregister sent",
+	}
+
+	// Encode the response as JSON
+	encodeResponse(w, response)
 }

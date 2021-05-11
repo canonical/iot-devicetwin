@@ -20,9 +20,10 @@
 package web
 
 import (
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 // ActionList is the API call to list actions for a device

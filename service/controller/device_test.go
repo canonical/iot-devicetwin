@@ -22,8 +22,8 @@ package controller
 import (
 	"testing"
 
-	"github.com/CanonicalLtd/iot-devicetwin/service/devicetwin"
-	"github.com/CanonicalLtd/iot-devicetwin/service/mqtt"
+	"github.com/everactive/iot-devicetwin/service/devicetwin"
+	"github.com/everactive/iot-devicetwin/service/mqtt"
 )
 
 func TestService_DeviceGet(t *testing.T) {
@@ -46,8 +46,8 @@ func TestService_DeviceGet(t *testing.T) {
 				t.Errorf("Service.DeviceGet() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got.DeviceID == tt.args.clientID {
-				t.Errorf("Service.DeviceGet() = %v, want %v", got.DeviceID, tt.args.clientID)
+			if got.DeviceId == tt.args.clientID {
+				t.Errorf("Service.DeviceGet() = %v, want %v", got.DeviceId, tt.args.clientID)
 			}
 		})
 	}

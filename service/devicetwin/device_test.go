@@ -22,8 +22,8 @@ package devicetwin
 import (
 	"testing"
 
-	"github.com/CanonicalLtd/iot-devicetwin/config"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore/memory"
+	"github.com/everactive/iot-devicetwin/config"
+	"github.com/everactive/iot-devicetwin/datastore/memory"
 )
 
 func TestService_DeviceGet(t *testing.T) {
@@ -42,18 +42,19 @@ func TestService_DeviceGet(t *testing.T) {
 		{"invalid-orgid", args{"invalid", "a111"}, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		localtt := tt
+		t.Run(localtt.name, func(t *testing.T) {
 			srv := NewService(config.TestConfig(), memory.NewStore())
-			got, err := srv.DeviceGet(tt.args.orgID, tt.args.clientID)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Service.DeviceGet() error = %v, wantErr %v", err, tt.wantErr)
+			got, err := srv.DeviceGet(localtt.args.orgID, localtt.args.clientID)
+			if (err != nil) != localtt.wantErr {
+				t.Errorf("Service.DeviceGet() error = %v, wantErr %v", err, localtt.wantErr)
 				return
 			}
-			if tt.wantErr {
+			if localtt.wantErr {
 				return
 			}
-			if got.DeviceID != tt.args.clientID {
-				t.Errorf("Service.DeviceGet() = %v, want %v", got.DeviceID, tt.args.clientID)
+			if got.DeviceId != localtt.args.clientID {
+				t.Errorf("Service.DeviceGet() = %v, want %v", got.DeviceId, localtt.args.clientID)
 			}
 		})
 	}
@@ -74,15 +75,16 @@ func TestService_DeviceList(t *testing.T) {
 		{"invalid", args{"invalid"}, 0, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		localtt := tt
+		t.Run(localtt.name, func(t *testing.T) {
 			srv := NewService(config.TestConfig(), memory.NewStore())
-			got, err := srv.DeviceList(tt.args.orgID)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Service.DeviceList() error = %v, wantErr %v", err, tt.wantErr)
+			got, err := srv.DeviceList(localtt.args.orgID)
+			if (err != nil) != localtt.wantErr {
+				t.Errorf("Service.DeviceList() error = %v, wantErr %v", err, localtt.wantErr)
 				return
 			}
-			if len(got) != tt.want {
-				t.Errorf("Service.DeviceList() = %v, want %v", len(got), tt.want)
+			if len(got) != localtt.want {
+				t.Errorf("Service.DeviceList() = %v, want %v", len(got), localtt.want)
 			}
 		})
 	}

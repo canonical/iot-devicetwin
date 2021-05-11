@@ -17,13 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Package memory is the Datastore implementation for in-memory
 package memory
 
 import (
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/datastore"
 	"sync"
 	"time"
+
+	"github.com/everactive/iot-devicetwin/datastore"
 )
 
 // Store implements an in-memory store for testing
@@ -37,27 +39,40 @@ type Store struct {
 	lock           sync.RWMutex
 }
 
+const (
+	testID1           = 1
+	testID2           = 2
+	testID3           = 3
+	testInstalledSize = 2000
+	invalidString     = "invalid"
+)
+
 // NewStore creates a new memory store
 func NewStore() *Store {
-	d1 := datastore.Device{ID: 1, OrganisationID: "abc", DeviceID: "a111", Brand: "example", Model: "drone-1000", SerialNumber: "DR1000A111", DeviceKey: "AAAAAAAAA", StoreID: "example-store", Active: true}
-	d2 := datastore.Device{ID: 2, OrganisationID: "abc", DeviceID: "b222", Brand: "example", Model: "drone-1000", SerialNumber: "DR1000B222", DeviceKey: "BBBBBBBBB", StoreID: "example-store", Active: true}
-	d3 := datastore.Device{ID: 3, OrganisationID: "abc", DeviceID: "c333", Brand: "canonical", Model: "ubuntu-core-18-amd64", SerialNumber: "d75f7300-abbf-4c11-bf0a-8b7103038490", DeviceKey: "CCCCCCCCC", Active: true}
+	d1 := datastore.Device{ID: testID1, OrganisationID: "abc", DeviceID: "a111", Brand: "example", Model: "drone-1000", SerialNumber: "DR1000A111", DeviceKey: "AAAAAAAAA", StoreID: "example-store", Active: true}
+	d2 := datastore.Device{ID: testID2, OrganisationID: "abc", DeviceID: "b222", Brand: "example", Model: "drone-1000", SerialNumber: "DR1000B222", DeviceKey: "BBBBBBBBB", StoreID: "example-store", Active: true}
+	d3 := datastore.Device{ID: testID3, OrganisationID: "abc", DeviceID: "c333", Brand: "canonical", Model: "ubuntu-core-18-amd64", SerialNumber: "d75f7300-abbf-4c11-bf0a-8b7103038490", DeviceKey: "CCCCCCCCC", Active: true}
 
 	return &Store{
 		Devices: []datastore.Device{d1, d2, d3},
 		Snaps: []datastore.DeviceSnap{
-			{DeviceID: 1, Name: "example-snap", InstalledSize: 2000, Status: "active"},
+			{DeviceID: testID1, Name: "example-snap", InstalledSize: testInstalledSize, Status: "active"},
 		},
 		Actions: []datastore.Action{
-			{ID: 1, OrganizationID: "abc", DeviceID: "c333", Action: "list", Status: ""},
-			{ID: 2, OrganizationID: "abc", DeviceID: "c333", Action: "list", Status: ""},
+			{ID: testID1, OrganizationID: "abc", DeviceID: "c333", Action: "list", Status: ""},
+			{ID: testID2, OrganizationID: "abc", DeviceID: "c333", Action: "list", Status: ""},
 		},
 		DeviceVersions: []datastore.DeviceVersion{
-			{ID: 1, DeviceID: 3, KernelVersion: "kernel-123", OSVersionID: "core-123", Series: "16"},
+			{ID: testID1, DeviceID: testID3, KernelVersion: "kernel-123", OSVersionID: "core-123", Series: "16"},
 		},
-		Groups:     []datastore.Group{{ID: 1, OrganisationID: "abc", Name: "workshop"}},
-		GroupLinks: []datastore.GroupDeviceLink{{ID: 1, OrganisationID: "abc", GroupID: 1, DeviceID: 1}},
+		Groups:     []datastore.Group{{ID: testID1, OrganisationID: "abc", Name: "workshop"}},
+		GroupLinks: []datastore.GroupDeviceLink{{ID: testID1, OrganisationID: "abc", GroupID: testID1, DeviceID: testID1}},
 	}
+}
+
+// DeviceDelete is no-op
+func (mem *Store) DeviceDelete(_ string) error {
+	return nil
 }
 
 // DeviceList fetches existing devices
@@ -65,7 +80,7 @@ func (mem *Store) DeviceList(orgID string) ([]datastore.Device, error) {
 	mem.lock.RLock()
 	defer mem.lock.RUnlock()
 
-	if orgID == "invalid" {
+	if orgID == invalidString {
 		return nil, fmt.Errorf("MOCK list error")
 	}
 
@@ -306,7 +321,7 @@ func (mem *Store) GroupCreate(orgID, name string) (int64, error) {
 	mem.lock.Lock()
 	defer mem.lock.Unlock()
 
-	if orgID == "invalid" {
+	if orgID == invalidString {
 		return 0, fmt.Errorf("error cannot find organization `%s`", orgID)
 	}
 
@@ -332,7 +347,7 @@ func (mem *Store) GroupList(orgID string) ([]datastore.Group, error) {
 	mem.lock.RLock()
 	defer mem.lock.RUnlock()
 
-	if orgID == "invalid" {
+	if orgID == invalidString {
 		return nil, fmt.Errorf("error cannot find organization `%s`", orgID)
 	}
 

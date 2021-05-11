@@ -21,11 +21,12 @@ package devicetwin
 
 import (
 	"fmt"
-	"github.com/CanonicalLtd/iot-devicetwin/domain"
+
+	"github.com/everactive/iot-devicetwin/pkg/messages"
 )
 
 // DeviceSnaps fetches the snaps for a device
-func (srv *Service) DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, error) {
+func (srv *Service) DeviceSnaps(orgID, clientID string) ([]messages.DeviceSnap, error) {
 	device, err := srv.DB.DeviceGet(clientID)
 	if err != nil {
 		return nil, err
@@ -41,10 +42,10 @@ func (srv *Service) DeviceSnaps(orgID, clientID string) ([]domain.DeviceSnap, er
 		return nil, err
 	}
 
-	installed := []domain.DeviceSnap{}
+	installed := []messages.DeviceSnap{}
 	for _, s := range snaps {
-		snap := domain.DeviceSnap{
-			DeviceID:      device.DeviceID,
+		snap := messages.DeviceSnap{
+			DeviceId:      device.DeviceID,
 			Name:          s.Name,
 			InstalledSize: s.InstalledSize,
 			InstalledDate: s.InstalledDate,

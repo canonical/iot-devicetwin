@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "$comment": "",
+  "description": "A representation of collection of snap services to start/stop/restart",
+  "title": "Snap service message",
+  "type": "object",
+  "properties": {
+    "services": {
+      "description": "A list of services within the snap to take action on (or empty to apply to all)",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  }
+}
