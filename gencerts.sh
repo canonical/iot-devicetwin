@@ -1,7 +1,7 @@
 #!/bin/sh
 
 
-CA_ORG="/O=IoT Management/emailAddress=admin@example.com"
+CA_ORG="/O=IoT Management/emailAddress=${EMAIL:-admin@example.com}"
 CA_DN="/CN=mqtt${CA_ORG}"
 MQTT_DN="/CN=mqtt$CA_ORG"
 TWIN_DN="/CN=mqtt$CA_ORG"
@@ -48,9 +48,9 @@ metadata:
   name: devicetwin-certs
 data:
   # base64 encoded X509 certificate files
-  ca.crt: `cat ca.crt | base64 -w0`
-  server.crt: `cat devicetwin.crt | base64 -w0`
-  server.key: `cat devicetwin.key | base64 -w0`
+  ca.crt:     "$(base64 -w0 ca.crt)"
+  server.crt: "$(base64 -w0 devicetwin.crt)"
+  server.key: "$(base64 -w0 devicetwin.key)"
 ---
 EOF
 
@@ -61,9 +61,9 @@ metadata:
   name: mqtt-certs
 data:
   # base64 encoded X509 certificate files
-  ca.crt: `cat ca.crt | base64 -w0`
-  server.crt: `cat mqtt.crt | base64 -w0`
-  server.key: `cat mqtt.key | base64 -w0`
+  ca.crt:     "$(base64 -w0 ca.crt)"
+  server.crt: "$(base64 -w0 mqtt.crt)"
+  server.key: "$(base64 -w0 mqtt.key)"
 ---
 EOF
 
@@ -74,12 +74,12 @@ metadata:
   name: identity-certs
 data:
   # base64 encoded X509 certificate files
-  ca.crt: `cat ca.crt | base64 -w0`
-  ca.key: `cat ca.key | base64 -w0`
+  ca.crt: "$(base64 -w0 ca.crt)"
+  ca.key: "$(base64 -w0 ca.key)"
 ---
 EOF
 
 # Clean up
-rm *.cnf *.csr
+rm -- *.cnf *.csr
 
 echo "Use the *.yaml files for deploying the X509 certificates as kubernetes secrets"
